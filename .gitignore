@@ -2,3 +2,4 @@ front/dist
 font/node_modules
 __debug_bin.exe
 go.sum
+horizon-ui-chakra-ts-main/modules
