@@ -21,7 +21,7 @@ import { Scrollbars } from 'react-custom-scrollbars-2';
 import { IoMenuOutline } from 'react-icons/io5';
 
 function Sidebar(props: { routes: RoutesType[]; [x: string]: any }) {
-	const { routes } = props;
+	const { routes, setRoutes } = props;
 
 	let variantChange = '0.2s linear';
 	let shadow = useColorModeValue('14px 17px 40px 4px rgba(112, 144, 176, 0.08)', 'unset');
@@ -46,7 +46,7 @@ function Sidebar(props: { routes: RoutesType[]; [x: string]: any }) {
 					renderTrackVertical={renderTrack}
 					renderThumbVertical={renderThumb}
 					renderView={renderView}>
-					<Content routes={routes} />
+					<Content routes={routes} setRoutes={setRoutes} />
 				</Scrollbars>
 			</Box>
 		</Box>
@@ -62,8 +62,6 @@ export function SidebarResponsive(props: { routes: RoutesType[] }) {
 	const btnRef = React.useRef();
 
 	const { routes } = props;
-	// let isWindows = navigator.platform.startsWith("Win");
-	//  BRAND
 
 	return (
 		<Flex display={{ sm: 'flex', xl: 'none' }} alignItems='center'>
@@ -97,7 +95,7 @@ export function SidebarResponsive(props: { routes: RoutesType[] }) {
 							renderTrackVertical={renderTrack}
 							renderThumbVertical={renderThumb}
 							renderView={renderView}>
-							<Content routes={routes} />
+							{/* <Content routes={routes} /> */}
 						</Scrollbars>
 					</DrawerBody>
 				</DrawerContent>

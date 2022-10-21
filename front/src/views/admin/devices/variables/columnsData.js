@@ -16,30 +16,6 @@ export const columnsDataCheck = [
     accessor: "date",
   },
 ];
-
-export const columnsAppData = [
-  {
-    Header: "NAME",
-    accessor: "name",
-  },
-  {
-    Header: "TYPE",
-    accessor: "type",
-  },
-  {
-    Header: "SIZE",
-    accessor: "size",
-  },
-  {
-    Header: "VERSION",
-    accessor: "version",
-  },
-  {
-    Header: "DELETE",
-    accessor: "delete",
-  },
-];
-
 export const columnsDataComplex = [
   {
     Header: "NAME",

@@ -1,14 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // Chakra imports
-import { Portal, Box, useDisclosure } from '@chakra-ui/react';
+import { Portal, Box, useDisclosure, Icon } from '@chakra-ui/react';
 import Footer from 'components/footer/FooterAdmin';
 // Layout components
 import Navbar from 'components/navbar/NavbarAdmin';
 import Sidebar from 'components/sidebar/Sidebar';
 import { SidebarContext } from 'contexts/SidebarContext';
 import { useState } from 'react';
+import { MdBarChart, MdHome, MdOutlineShoppingCart, MdPerson, MdPhoneAndroid } from 'react-icons/md';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import routes from 'routes';
+import MainDashboard from 'views/admin/default';
+import Devices from 'views/admin/devices';
+import NFTMarketplace from 'views/admin/marketplace';
+import Profile from 'views/admin/profile';
+import DataTables from 'views/admin/dataTables';
+import RTL from 'views/admin/rtl';
 
 // Custom Chakra theme
 export default function Dashboard(props: { [x: string]: any }) {
@@ -57,27 +64,48 @@ export default function Dashboard(props: { [x: string]: any }) {
 		});
 	};
 
-	// const [deviceCount, setDeviceCount] = useState(0);
-	// const [deviceList, setDeviceList] = useState([]);
+	const [routes, setR] = useState([
+		{
+			name: 'Main',
+			layout: '/admin',
+			path: '/default',
+			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+			component: Devices
+		},
+	])
+	
+	function setRoutes(){
+		fetch("http://localhost:8080/devices")
+			.then(res => res.json())
+			.then(
+			(result) => {
+				if (result == null) {
+				// setCount((count) => 0)
+				}
+				else {
+					const listItems = [];
+					listItems.push(routes[0])
 
-	// setInterval(async () => {
-	// 	await fetch("http://localhost:8080/devices")
-	// 	.then(res => res.json())
-	// 	.then(
-	// 	  (result) => {
-	// 		if (result == null) {
-	// 		  setDeviceCount(() => 0)
-	// 		}
-	// 		else {
-	// 		  setDeviceCount(() => result.length)
-	// 		  setDeviceList(() => result);
-	// 		}
-	// 	  },
-	// 	  (error) => {
-	// 		setDeviceCount(() => 0)
-	// 	  }
-	// 	);
-	//   }, 2000);
+					for (const element of result){
+						listItems.push(
+							{
+								name: element,
+								layout: '/admin',
+								path: '/' + element,
+								icon: <Icon as={MdPhoneAndroid} width='20px' height='20px' color='inherit' />,
+								component: MainDashboard
+							}
+						)
+					}
+
+					setR(listItems)
+				}
+			},
+			(error) => {
+				// setCount((i) => 0)
+			}
+		)
+	}
 
 	document.documentElement.dir = 'ltr';
 	const { onOpen } = useDisclosure();
@@ -88,7 +116,7 @@ export default function Dashboard(props: { [x: string]: any }) {
 					toggleSidebar,
 					setToggleSidebar
 				}}>
-				<Sidebar routes={routes} display='none' {...rest} />
+				<Sidebar routes={routes} setRoutes={setRoutes} display='none' {...rest}  />
 				<Box
 					float='right'
 					minHeight='100vh'
@@ -128,6 +156,8 @@ export default function Dashboard(props: { [x: string]: any }) {
 						<Footer />
 					</Box>
 				</Box>
+
+				
 				
 			</SidebarContext.Provider>
 		</Box>

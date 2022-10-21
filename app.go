@@ -2,19 +2,10 @@ package main
 
 import (
 	"embed"
-	"fmt"
-	"log"
-	"net"
-	"net/http"
-	"os"
-	"os/signal"
-	"runtime"
 	"sync"
-
-	"github.com/zserge/lorca"
 )
 
-//go:embed front/dist
+// /go:embed front/
 var fs embed.FS
 
 type counter struct {
@@ -37,43 +28,43 @@ func (c *counter) Value() int {
 func main() {
 	api()
 
-	args := []string{}
-	if runtime.GOOS == "linux" {
-		args = append(args, "--class=Lorca")
-	}
-	ui, err := lorca.New("", "", 1280, 720, args...)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer ui.Close()
+	// args := []string{}
+	// if runtime.GOOS == "linux" {
+	// 	args = append(args, "--class=Lorca")
+	// }
+	// ui, err := lorca.New("", "", 1280, 720, args...)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer ui.Close()
 
-	ui.Bind("start", func() {
-		log.Println("UI is ready")
-	})
+	// ui.Bind("start", func() {
+	// 	log.Println("UI is ready")
+	// })
 
-	c := &counter{}
-	ui.Bind("counterAdd", c.Add)
-	ui.Bind("counterValue", c.Value)
+	// c := &counter{}
+	// ui.Bind("counterAdd", c.Add)
+	// ui.Bind("counterValue", c.Value)
 
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer ln.Close()
-	go http.Serve(ln, http.FileServer(http.FS(fs)))
-	ui.Load(fmt.Sprintf("http://%s/front/dist", ln.Addr()))
+	// ln, err := net.Listen("tcp", "127.0.0.1:0")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer ln.Close()
+	// go http.Serve(ln, http.FileServer(http.FS(fs)))
+	// ui.Load(fmt.Sprintf("http://%s/front/dist", ln.Addr()))
 
-	ui.Eval(`
-		console.log("Hello, world!");
-		console.log('Multiple values:', [1, false, {"x":5}]);
-	`)
+	// ui.Eval(`
+	// 	console.log("Hello, world!");
+	// 	console.log('Multiple values:', [1, false, {"x":5}]);
+	// `)
 
-	sigc := make(chan os.Signal)
-	signal.Notify(sigc, os.Interrupt)
-	select {
-	case <-sigc:
-	case <-ui.Done():
-	}
+	// sigc := make(chan os.Signal)
+	// signal.Notify(sigc, os.Interrupt)
+	// select {
+	// case <-sigc:
+	// case <-ui.Done():
+	// }
 
-	log.Println("exiting...")
+	// log.Println("exiting...")
 }
