@@ -84,7 +84,6 @@ export function SidebarLinks(props: {
 		);
 	};
 	//  BRAND
-	console.log(routes.length == 0)
 	return <>{createLinks(routes)}</>
 }
 

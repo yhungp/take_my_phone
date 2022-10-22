@@ -23,10 +23,6 @@ export const columnsAppData = [
     accessor: "name",
   },
   {
-    Header: "TYPE",
-    accessor: "type",
-  },
-  {
     Header: "SIZE",
     accessor: "size",
   },

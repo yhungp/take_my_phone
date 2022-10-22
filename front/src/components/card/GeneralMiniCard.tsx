@@ -14,25 +14,25 @@ export default function GeneralMinicard(
     
     return (
         <MiniStatistics
-        startContent={
-            <IconBox
-                w='56px'
-                h='56px'
-                bg={boxBg}
-                icon={<Icon w='32px' h='32px' as={icon} color={brandColor} />}
-            />
-        }
-        name=''
-        value={label}
-        endContent={
-            <Button onClick={() => { func() }}>
+            startContent={
                 <IconBox
-                    w='20px'
-                    h='30px'
-                    icon={<Icon w='20px' h='20px' as={MdArrowForwardIos} color={brandColor} />}
+                    w='56px'
+                    h='56px'
+                    bg={boxBg}
+                    icon={<Icon w='32px' h='32px' as={icon} color={brandColor} />}
                 />
-            </Button>
-        }
-    />
+            }
+            name=''
+            value={label}
+            endContent={
+                <Button onClick={() => { func() }}>
+                    <IconBox
+                        w='20px'
+                        h='30px'
+                        icon={<Icon w='20px' h='20px' as={MdArrowForwardIos} color={brandColor} />}
+                    />
+                </Button>
+            }
+        />
     )
   }

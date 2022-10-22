@@ -26,131 +26,209 @@ import { Box, Button, Icon, SimpleGrid, useColorModeValue } from '@chakra-ui/rea
 import MiniStatistics from 'components/card/MiniStatistics';
 import IconBox from 'components/icons/IconBox';
 import GeneralMinicard from 'components/card/GeneralMiniCard';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { MdApps, MdArrowForwardIos, MdFolder, MdImage, MdMusicNote, MdVideoLibrary } from 'react-icons/md';
 import { columnsAppData, columnsDataCheck } from 'views/admin/default/variables/columnsData';
 import tableDataCheck from 'views/admin/default/variables/tableDataCheck.json';
 import DeviceApps from '../default/components/DeviceApps';
+import CheckTable from './components/CheckTable';
 
 export default function UserReports() {
-	const apps = [
-		{
-			"name":["Facebook",false],
-			"type": "Social", 
-			"size": 1024,
-			"version": "12 Jan 2021",
-			"delete": ""
-	  	},
-		{
-			  "name":["Call of Duty: Mobil",false],
-			  "type": "Games", 
-			  "size": 1024,
-			  "version": "12 Jan 2021",
-			  "delete": ""
-		},
-		{
-			  "name":["Youtube",false],
-			  "type": "Social", 
-			  "size": 1024,
-			  "version": "12 Jan 2021",
-			"delete": ""
-		},
-	]
-
 	var [selected, setSelected] = useState(0)
 
-	const tabs = [
-		'Apps',
-		'Files',
-		'Music',
-		'Video',
-		'Images',
-		'Information'
-	]
-	  
-	// Chakra Color Mode
-	// const brandColor = useColorModeValue('brand.500', 'white');
-	// const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
-
-	// const [apps, setApps] = useState([])
+	const [apps, setApps] = useState([
+		{
+			"name":["",false],
+			"type": "", 
+			"size": 0,
+			"version": "12 Jan 2021",
+			"delete": ""
+	  	}
+	])
 	
+	const [appsLoaded, setAppsLoaded] = useState(true)
+	const [totalPages, setPages] = useState(0)
+	const [currentPage, setCurrentPage] = useState(0)
+
 	const [componentToShow, setComponentToShow] = useState(
 		<DeviceApps 
 			columnsData={columnsAppData} 
 			tableData={apps}
+			pages={0}
+			currentPage={0}
+			setPage={setPage}
+			apps={apps}
 		/>
 	)
 
 	useEffect(() => {
-		fetch("http://localhost:8080/devices")
+		setAppsLoaded(false)
+
+		console.log(selected)
+
+		fetch("http://localhost:8080/device-apps/6effc419")
 			.then(res => res.json())
 			.then(
 			(result) => {
+				var apps_loaded: { 
+					name: any[]; 
+					type: string; 
+					size: any; 
+					version: string;
+					delete: string; 
+				}[] = []
+				
 				if (result == null) {
 				// setCount((count) => 0)
 				}
 				else {
+					for (let r in result) {
+						apps_loaded.push({
+								"name":[result[r][1],false,result[r][0]],
+								"type": "", 
+								"size": [
+									result[r][2],
+									result[r][3],
+									result[r][4]
+								],
+								"version": result[r][5],
+								"delete": ""
+							},
+						);
+					}
 					
+					var pages = Math.round(apps_loaded.length / 10)
+
+					setApps(apps_loaded)
+					setPages(pages)
+					
+					setComponentToShow(
+						<DeviceApps 
+							columnsData={columnsAppData} 
+							tableData={apps_loaded.slice(0, 10)}
+							pages={pages}
+							currentPage={0}
+							setPage={setPage}
+							apps={apps_loaded}
+						/>
+					)
 				}
 			},
 			(error) => {
 				// setCount((i) => 0)
 			}
 		)
-	});
+	}, []);
+
+	function setPage( upDown: boolean, apps_list: any, pages: number, current: number){
+		var page = 0
+		if (current > 0 && !upDown){
+			page = current - 1
+			setCurrentPage(current - 1)
+			
+			setComponentToShow(
+				<DeviceApps 
+					columnsData={columnsAppData} 
+					tableData={apps_list.slice(page * 10, page * 10 + 10)}
+					pages={pages}
+					currentPage={page}
+					setPage={setPage}
+					apps={apps_list}
+				/>
+			)
+		}
+		else if (current < pages - 1 && upDown){
+			page = current + 1
+			setCurrentPage(current + 1)
+
+			setComponentToShow(
+				<DeviceApps 
+					columnsData={columnsAppData} 
+					tableData={apps_list.slice(page * 10, page * 10 + 10)}
+					pages={pages}
+					currentPage={page}
+					setPage={setPage}
+					apps={apps_list}
+				/>
+			)
+		}
+	}
+
+	async function componentDidMount() {
+		// POST request using fetch with async/await
+		const requestOptions = {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ path: '/' })
+		};
+		const response = await fetch('http://localhost:8080/list-files/', requestOptions);
+		const data = await response.json();
+
+		console.log(data)
+	}
 
 	function toShow(index: any){
-		setSelected(index)
-
+		// handleClick(index)
+		setSelected(selected => index)
+		
 		switch (index){
 			case 0:
 				setComponentToShow(
 					<DeviceApps 
 						columnsData={columnsAppData} 
 						tableData={apps}
+						pages={0}
+						currentPage={0}
+						setPage={setPage}
+						apps={apps}
 					/>
 				)
 				break;
 			case 1:
+				componentDidMount()
+
 				setComponentToShow(
-					<DeviceApps 
+					<CheckTable 
 						columnsData={columnsDataCheck} 
 						tableData={tableDataCheck}
 					/>
 				)
 				break;
-			case 2:
-				setComponentToShow(
-					<DeviceApps 
-						columnsData={columnsAppData} 
-						tableData={apps}
-					/>
-				)
-				break;
-			case 3:
-				setComponentToShow(
-					<DeviceApps 
-						columnsData={columnsAppData} 
-						tableData={apps}
-					/>
-				)
-				break;
-			case 4:
-				setComponentToShow(
-					<DeviceApps 
-						columnsData={columnsAppData} 
-						tableData={apps}
-					/>
-				)
-				break;
-			case 5:
-				setComponentToShow(
-					<DeviceApps 
-						columnsData={columnsAppData} 
-						tableData={apps}
-					/>
-				)
-				break;
+			// case 2:
+			// 	setComponentToShow(
+			// 		<DeviceApps 
+			// 			columnsData={columnsAppData} 
+			// 			tableData={apps}
+			// 		/>
+			// 	)
+			// 	break;
+			// case 3:
+			// 	setComponentToShow(
+			// 		<DeviceApps 
+			// 			columnsData={columnsAppData} 
+			// 			tableData={apps}
+						
+			// 		/>
+			// 	)
+			// 	break;
+			// case 4:
+			// 	setComponentToShow(
+			// 		<DeviceApps 
+			// 			columnsData={columnsAppData} 
+			// 			tableData={apps}
+						
+			// 		/>
+			// 	)
+			// 	break;
+			// case 5:
+			// 	setComponentToShow(
+			// 		<DeviceApps 
+			// 			columnsData={columnsAppData} 
+			// 			tableData={apps}
+						
+			// 		/>
+			// 	)
+			// 	break;
 		}
 	}
 
@@ -174,12 +252,11 @@ export default function UserReports() {
 				
 				<GeneralMinicard 
 					icon={MdFolder} func={() => toShow(5)} label={"Information"} />
-			
 			</SimpleGrid>
 
 			<SimpleGrid columns={{ base: 1, md: 1, xl: 1 }} gap='20px' mb='20px'>
 				{
-					apps.length !== 0 ? componentToShow : null
+					componentToShow
 				}
 			</SimpleGrid>
 		</Box>
