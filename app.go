@@ -2,9 +2,13 @@ package main
 
 import (
 	"embed"
+	"log"
 	"sync"
+
+	"github.com/jchv/go-webview2"
 )
 
+// "react-scripts": "5.0.1",
 // /go:embed front/
 var fs embed.FS
 
@@ -26,7 +30,26 @@ func (c *counter) Value() int {
 }
 
 func main() {
-	api()
+	go api()
+
+	w := webview2.NewWithOptions(webview2.WebViewOptions{
+		Debug:     true,
+		AutoFocus: true,
+		WindowOptions: webview2.WindowOptions{
+			Title:  "Minimal webview example",
+			Width:  800,
+			Height: 600,
+			IconId: 2, // icon resource id
+			Center: true,
+		},
+	})
+	if w == nil {
+		log.Fatalln("Failed to load webview.")
+	}
+	defer w.Destroy()
+	w.SetSize(800, 600, webview2.HintNone)
+	w.Navigate("http://localhost:3000/admin/dashboard")
+	w.Run()
 
 	// args := []string{}
 	// if runtime.GOOS == "linux" {

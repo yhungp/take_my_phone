@@ -147,7 +147,7 @@ func deviceApps(w http.ResponseWriter, r *http.Request) {
 
 	appNames := make([][]string, 0, len(third_party_apps))
 
-	for i, _ := range third_party_apps[:5] {
+	for i, _ := range third_party_apps {
 		cmd = exec.Command("adb", "-s", id, "shell", "pm", "path", third_party_apps[i])
 		stdout, _ = cmd.Output()
 

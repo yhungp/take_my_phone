@@ -1,118 +1,186 @@
-# [Horizon UI TypeScript ⚡️](https://horizon-ui.com/horizon-ui-chakra-ts) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](https://twitter.com/intent/tweet?url=https://horizon-ui.com/&text=Check%20Horizon%20UI,%20the%20trendiest%20open-source%20admin%20template%20for%20Chakra%20UI%20&%20React!)
+# [Black Dashboard React](https://demos.creative-tim.com/black-dashboard-react/#/dashboard) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fdemos.creative-tim.com%2Fblack-dashboard-react%2F%23%2Fadmin%2Fdashboard&text=Black%20Dashboard%20React%20by%20Creative%20Tim%20%7C%20Free%20React%20Admin%20Template&original_referer=https%3A%2F%2Fdemos.creative-tim.com%2Fblack-dashboard-react%2F&via=creativetim&hashtags=react%2Ccreativetim%2Cdark%2Cdashboard%2Cbootstrap%2Creactstrap%2Creactjs)
 
-![version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![license](https://img.shields.io/badge/license-MIT-blue.svg)
-[![GitHub issues open](https://img.shields.io/github/issues/horizon-ui/horizon-ui-chakra-ts.svg?maxAge=2592000)](https://github.com/horizon-ui/horizon-ui-chakra-ts/issues?q=is%3Aopen+is%3Aissue)
+![version](https://img.shields.io/badge/version-1.2.1-blue.svg) ![license](https://img.shields.io/badge/license-MIT-blue.svg) [![GitHub issues open](https://img.shields.io/github/issues/creativetimofficial/black-dashboard-react.svg?maxAge=2592000)]() [![GitHub issues closed](https://img.shields.io/github/issues-closed-raw/creativetimofficial/black-dashboard-react.svg?maxAge=2592000)]() [![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg)](https://discord.gg/E4aHAQy)
 
-<p>&nbsp;</p>
+![Product Gif](./github-assets/black-dashboard-react.gif)
 
-[<img alt="Horizon UI TypeScript" src="https://i.ibb.co/34p7k1p/introduction-image-ts.png" /> ](https://github.com/horizon-ui/horizon-ui-chakra-ts)
+Black Dashboard React is a beautiful [Bootstrap 4](http://getbootstrap.com/), [Reacstrap](https://reactstrap.github.io/) and [React](https://reactjs.org/) ([create-react-app](https://github.com/facebook/create-react-app)) Admin Dashboard with a huge number of components built to fit together and look amazing. If you are looking for a tool to manage and visualize data about your business, this dashboard is the thing for you. It combines colors that are easy on the eye, spacious cards, beautiful typography, and graphics.
+Black Dashboard React comes packed with all plugins that you might need inside a project and documentation on how to get started. It is light and easy to use, and also very powerful.
 
-<p>&nbsp;</p>
+Black Dashboard React features over 16 individual components, giving you the freedom of choosing and combining. This means that there are thousands of possible combinations. All components can take variations in color, that you can easily modify using SASS files. You will save a lot of time going from prototyping to full-functional code because all elements are implemented.
+We thought about everything, so this dashboard comes with 2 versions, Dark Mode and Light Mode.
 
+Special thanks go for the owners of these plugins:
 
-Get started and build your dream web app with Horizon UI, the most trendiest &
-innovative Open Source Admin Template for Chakra UI & React!
+- [Perfect Scrollbar](http://utatti.github.io/perfect-scrollbar/) for the nice scrollbars for windows.
+- [React Chartjs](http://jerairrest.github.io/react-chartjs-2/) for the wonderful wrapper for charts.
+- [Chartjs](https://www.chartjs.org/) for the wonderful charts.
 
----
+We are very excited to share this dashboard with you and we look forward to hearing your feedback!
 
-### Introduction
+**Example Pages** We wanted to fully display the power of this dashboard, so the kit comes packed with examples showing you how to use the components.
 
-Designed for those who like modern UI elements and beautiful websites. Made of
-hundred of elements, designed blocks and fully coded pages, Horizon UI is ready
-to help you create stunning websites and webapps.
+## Table of Contents
 
-Save hundreds of hours trying to create and develop a dashboard from scratch.
-The fastest, most responsive & trendiest dashboard is here. Seriously.
+- [Versions](#versions)
+- [Demo](#demo)
+- [Quick Start](#quick-start)
+- [Documentation](#documentation)
+- [File Structure](#file-structure)
+- [Browser Support](#browser-support)
+- [Resources](#resources)
+- [Reporting Issues](#reporting-issues)
+- [Technical Support or Questions](#technical-support-or-questions)
+- [Licensing](#licensing)
+- [Useful Links](#useful-links)
 
-With Horizon UI you will find many examples for pages like NFTs Pages,
-Authentication Pages, Profile and so on. Just choose between a Basic Design or a
-cover and you are good to go!
+## Versions
 
-### 🎉 [NEW] React Tables V8
-Horizon is also using the latest version of the React Tables (v8) library, you can access it by cloning the [/feature/react-table-v8](https://github.com/horizon-ui/horizon-ui-chakra-ts/tree/feature/react-table-v8) branch!
+[<img src="./github-assets/html.png" width="60" height="60" />](https://www.creative-tim.com/product/black-dashboard)
+[<img src="./github-assets/react.svg" width="60" height="60" />](https://www.creative-tim.com/product/black-dashboard-react)[<img src="./github-assets/vuejs.png" width="60" height="60" />](https://www.creative-tim.com/product/vue-black-dashboard)
 
-### 🎉 [NEW] Horizon UI Components
-All the main components from both versions, this will help you to see and interact with all & the latest added components of Horizon (also, new components are on the way, stay tuned)! ⚡️
-<a href="https://horizon-ui.com/components/?ref=readme-horizon-ts" target="_blank">See all components</a>
+| HTML                                                                                                                                                                | React                                                                                                                                                                   | Vue                                                                                                                                                                        |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [![Black Dashboard HTML](https://s3.amazonaws.com/creativetim_bucket/products/93/thumb/opt_bd_thumbnail.jpg)](https://www.creative-tim.com/product/black-dashboard) | [![Black Dashboard React](https://s3.amazonaws.com/creativetim_bucket/products/136/thumb/opt_bd_react.jpg)](https://www.creative-tim.com/product/black-dashboard-react) | [![Vue Black Dashboard](https://s3.amazonaws.com/creativetim_bucket/products/99/thumb/opt_bd_vue_thumbnail.jpg)](https://www.creative-tim.com/product/vue-black-dashboard) |
 
+## Demo
 
-### Documentation
+| Dashboard                                                                                                             | User Profile                                                                                                            | Tables                                                                                                               | Maps                                                                                                       | Notification                                                                                                                         |
+| --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| [![Start page](./github-assets/dashboard-page.png)](https://demos.creative-tim.com/black-dashboard-react/#/dashboard) | [![User profile page](./github-assets/user-page.png)](https://demos.creative-tim.com/black-dashboard-react/#/user-page) | [![Tables page ](./github-assets/table-page.png)](https://demos.creative-tim.com/black-dashboard-react/#/table-list) | [![Maps Page](./github-assets/maps-page.png)](https://demos.creative-tim.com/black-dashboard-react/#/maps) | [![Notification page](./github-assets/notifications-page.png)](https://demos.creative-tim.com/black-dashboard-react/#/notifications) |
 
-Each element is well presented in a very complex documentation. You can read
-more about the <a href="https://horizon-ui.com/documentation/docs/introduction?ref=readme-horizon-ts" target="_blank">documentation
-here.</a>
+[View More](https://demos.creative-tim.com/black-dashboard-react/#/dashboard).
 
-### Quick Start
+## Quick start
 
-Install Horizon UI by running either of the following:
+Quick start options:
 
-- Install NodeJS LTS from
-  [NodeJs Official Page](https://nodejs.org/en/?ref=horizon-documentation)
-  (NOTE: Product only works with LTS version)
+- Clone the repo: `git clone https://github.com/creativetimofficial/black-dashboard-react.git`.
+- [Download from Github](https://github.com/creativetimofficial/black-dashboard-react/archive/master.zip).
+- [Download from Creative Tim](https://www.creative-tim.com/product/black-dashboard-react).
 
-Clone the repository with the following command:
+## Documentation
 
-```bash
-git clone https://github.com/horizon-ui/horizon-ui-chakra-ts.git
+The documentation for the Black Dashboard React is hosted at our [website](https://demos.creative-tim.com/black-dashboard-react/#/documentation/tutorial).
+
+## File Structure
+
+Within the download you'll find the following directories and files:
+
+```
+black-dashboard-react
+.
+├── package.json
+├── CHANGELOG.md
+├── ISSUE_TEMPLATE.md
+├── LICENSE.md
+├── README.md
+├── Documentation
+│   └── documentation.html
+├── github-assets
+│   └── react.svg
+├── public
+│   ├── index.html
+│   └── manifest.json
+└── src
+    ├── index.js
+    ├── logo-white.svg
+    ├── logo.svg
+    ├── routes.js
+    ├── assets
+    │   ├── css
+    │   ├── demo
+    │   ├── fonts
+    │   ├── img
+    │   └── scss
+    │       ├── black-dashboard
+    │       │   ├── bootstrap
+    │       │   │   ├── mixins
+    │       │   │   └── utilities
+    │       │   ├── custom
+    │       │   │   ├── cards
+    │       │   │   ├── mixins
+    │       │   │   ├── utilities
+    │       │   │   └── vendor
+    │       └── black-dashboard.scss
+    ├── components
+    │   ├── FixedPlugin
+    │   │   └── FixedPlugin.js
+    │   ├── Footer
+    │   │   └── Footer.js
+    │   ├── Navbars
+    │   │   ├── AdminNavbar.js
+    │   │   └── RTLNavbar.js
+    │   └── Sidebar
+    │       └── Sidebar.js
+    ├── layouts
+    │   ├── Admin
+    │   │   └── Admin.js
+    │   └── RTL
+    │       └── RTL.js
+    ├── variables
+    │   └── charts.js
+    └── views
+        ├── Dashboard.js
+        ├── Icons.js
+        ├── Map.js
+        ├── Notifications.js
+        ├── Rtl.js
+        ├── TableList.js
+        ├── Typography.js
+        └── UserProfile.js
 ```
 
-Run in terminal this command:
+## Browser Support
 
-```bash
-npm install
-```
+At present, we officially aim to support the last two versions of the following browsers:
 
-Then run this command to start your local server
+<img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/chrome.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/firefox.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/edge.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/safari.png" width="64" height="64"> <img src="https://s3.amazonaws.com/creativetim_bucket/github/browser/opera.png" width="64" height="64">
 
-```bash
-npm start
-```
+## Resources
 
-### Example Pages
+- Demo: https://demos.creative-tim.com/black-dashboard-react/#/dashboard
+- Download Page: https://www.creative-tim.com/product/black-dashboard-react
+- Documentation: https://demos.creative-tim.com/black-dashboard-react/#/documentation/tutorial
+- License Agreement: https://www.creative-tim.com/license
+- Support: https://www.creative-tim.com/contact-us
+- Issues: [Github Issues Page](https://github.com/creativetimofficial/black-dashboard-react/issues)
 
-If you want to get inspiration or just show something directly to your clients,
-you can jump start your development with our pre-built example pages. You will
-be able to quickly set up the basic structure for your web project. View
-<a href="https://horizon-ui.com/horizon-ui-chakra-ts/?ref=readme-horizon-ts" target="_blank">example
-pages here.</a>
+## Reporting Issues
 
-### Versions
+We use GitHub Issues as the official bug tracker for the Black Dashboard React. Here are some advices for our users that want to report an issue:
 
-| Free Version                                                                                                       | PRO Version                                                                                                               |
-| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| [![Horizon UI](https://i.ibb.co/34p7k1p/introduction-image-ts.png)](https://www.horizon-ui.com/?ref=readme-horizon-ts) | [![Horizon UI PRO](https://i.ibb.co/gdKmHcW/introduction-image-4.png")](https://www.horizon-ui.com/pro?ref=readme-horizon-ts) |
+1. Make sure that you are using the latest version of the Black Dashboard React. Check the CHANGELOG from your dashboard on our [website](https://www.creative-tim.com/).
+2. Providing us reproducible steps for the issue will shorten the time it takes for it to be fixed.
+3. Some issues may be browser specific, so specifying in what browser you encountered the issue might help.
 
-### Figma Version
+## Technical Support or Questions
 
-Horizon UI is available in Figma format as well! Check it out on Figma
-Community! 🎨
-[See the Horizon UI Figma design files](https://bit.ly/horizon-figma)
+If you have questions or need help integrating the product please [contact us](https://www.creative-tim.com/contact-us) instead of opening an issue.
 
-### Reporting Issues
+## Licensing
 
-We use GitHub Issues as the official bug tracker for the Horizon UI. Here are
-some advices for our users that want to report an issue:
+- Copyright 2022 Creative Tim (https://www.creative-tim.com)
+- Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
 
-1. Make sure that you are using the latest version of the Horizon UI Dashbaord.
-   Check the CHANGELOG from your dashboard on our
-   [CHANGE LOG File](https://github.com/horizon-ui/horizon-ui-chakra-ts/blob/main/CHANGELOG.md?ref=readme-horizon-ts).
-2. Providing us reproducible steps for the issue will shorten the time it takes
-   for it to be fixed.
-3. Some issues may be browser specific, so specifying in what browser you
-   encountered the issue might help.
+## Useful Links
 
----
+More products from Creative Tim: <https://www.creative-tim.com/products>
 
-### Community
+Tutorials: <https://www.youtube.com/channel/UCVyTG4sCw-rOvB9oHkzZD1w>
 
-Connect with the community! Feel free to ask questions, report issues, and meet
-new people that already use Horizon UI!
+Freebies: <https://www.creative-tim.com/products>
 
-💬 [Join the #HorizonUI Discord Community!](https://discord.gg/f6tEKFBd4m)
+Affiliate Program (earn money): <https://www.creative-tim.com/affiliates/new>
 
-### Copyright and license
+Social Media:
 
-⭐️ [Copyright 2022 Simmmple ](https://www.simmmple.com/?ref=readme-horizon-ts)
+Twitter: <https://twitter.com/CreativeTim>
 
-📄 [Horizon UI License](https://www.simmmple.com/licenses?ref=readme-horizon-ts)
+Facebook: <https://www.facebook.com/CreativeTim>
+
+Dribbble: <https://dribbble.com/creativetim>
+
+Google+: <https://plus.google.com/+CreativetimPage>
+
+Instagram: <https://instagram.com/creativetimofficial>
