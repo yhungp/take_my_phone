@@ -49,6 +49,7 @@ import {
   chartExample3,
   chartExample4
 } from "variables/charts.js";
+import routes from "routes";
 
 function Dashboard(props) {
   const [bigChartData, setbigChartData] = React.useState("data1");
@@ -57,7 +58,7 @@ function Dashboard(props) {
   };
 
   useEffect(() => {
-    console.log([bigChartData])
+    // console.log([bigChartData])
   }, [bigChartData])
 
   return (
@@ -70,112 +71,7 @@ function Dashboard(props) {
                 <Row>
                   <Col className="text-left" sm="6">
                     {/* <h5 className="card-category">general vie</h5> */}
-                    <CardTitle tag="h2">Device name</CardTitle>
-                  </Col>
-                  <Col sm="6">
-                    <ButtonGroup
-                      className="btn-group-toggle float-right"
-                      data-toggle="buttons"
-                    >
-                      <Button
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data1"
-                        })}
-                        color="info"
-                        id="0"
-                        size="sm"
-                        onClick={() => setBgChartData("data1")}
-                      >
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          My phone
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-single-02" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="1"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data2"
-                        })}
-                        onClick={() => setBgChartData("data2")}
-                      >
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Apps
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-gift-2" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="2"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data3"
-                        })}
-                        onClick={() => setBgChartData("data3")}>
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Files
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-tap-02" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="2"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data4"
-                        })}
-                        onClick={() => setBgChartData("data4")}>
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Music
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-tap-02" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="2"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data5"
-                        })}
-                        onClick={() => setBgChartData("data5")}>
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Video
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-tap-02" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="2"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data6"
-                        })}
-                        onClick={() => setBgChartData("data6")}>
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Photos
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-tap-02" />
-                        </span>
-                      </Button>
-                    </ButtonGroup>
+                    <CardTitle tag="h2">Dashboard</CardTitle>
                   </Col>
                 </Row>
               </CardHeader>
@@ -190,7 +86,7 @@ function Dashboard(props) {
             </Card>
           </Col>
         </Row>
-        <Row>
+        {/* <Row>
           <Col lg="4">
             <Card className="card-chart">
               <CardHeader>
@@ -246,7 +142,7 @@ function Dashboard(props) {
               </CardBody>
             </Card>
           </Col>
-        </Row>
+        </Row> */}
         <Row>
           <Col lg="6" md="12">
             <Card className="card-tasks">

@@ -15,11 +15,13 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // nodejs library that concatenates classes
 import classNames from "classnames";
 // react plugin used to create charts
 import { Line, Bar } from "react-chartjs-2";
+
+import { PieChart } from 'react-minimal-pie-chart';
 
 // reactstrap components
 import {
@@ -56,9 +58,69 @@ function Dashboard(props) {
     setbigChartData(name);
   };
 
+  const [deviceName, setDeviceName] = useState("Device")
+
   useEffect(() => {
-    console.log([bigChartData])
+    setDeviceName(props['match']['path'].replace("/admin/", "Device "))
   }, [bigChartData])
+
+  var [storageStarted, setStorageStarted] = useState(true)
+  var [storagesDescription, setStoragesDescription] = useState(null)
+
+  useEffect(() => {
+    if (storageStarted) {
+      getStorage()
+      setStorageStarted(false)
+    }
+  }, [storageStarted])
+
+  const getStorage = () => {
+    fetch("http://localhost:8080/device-space/" + props['match']['path'].replace("/admin/", "Device "))
+      .then(res => res.json())
+      .then(
+        (result) => {
+          if (result == null) {
+            // setCount((count) => 0)
+          }
+          else {
+            for (var r in result) {
+              console.log(r, formatBytes(result[r]))
+            }
+
+            setStoragesDescription(
+              <>
+                <PieChart
+                  data={[
+                    { title: 'Used', value: result['used'], color: '#C13C37' },
+                    { title: 'Free', value: result['free'], color: 'blue' },
+                  ]}
+                />
+
+                <Row>
+                  <p>Used {formatBytes(result['used'])}</p>
+                  <p>Free {formatBytes(result['free'])}</p>
+                </Row>
+              </>
+            )
+          }
+        },
+        (error) => {
+          // setCount((i) => 0)
+        }
+      )
+  }
+
+  function formatBytes(kilo_bytes, decimals = 2) {
+    if (!+kilo_bytes) return '0 KB'
+
+    const k = 1000
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ["B", 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+    const i = Math.floor(Math.log(kilo_bytes) / Math.log(k))
+
+    return `${parseFloat((kilo_bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  }
 
   return (
     <>
@@ -69,8 +131,7 @@ function Dashboard(props) {
               <CardHeader>
                 <Row>
                   <Col className="text-left" sm="6">
-                    {/* <h5 className="card-category">general vie</h5> */}
-                    <CardTitle tag="h2">Device name</CardTitle>
+                    <CardTitle tag="h2">{deviceName}</CardTitle>
                   </Col>
                   <Col sm="6">
                     <ButtonGroup
@@ -201,10 +262,7 @@ function Dashboard(props) {
               </CardHeader>
               <CardBody>
                 <div className="chart-area">
-                  <Line
-                    data={chartExample2.data}
-                    options={chartExample2.options}
-                  />
+                  {storagesDescription}
                 </div>
               </CardBody>
             </Card>

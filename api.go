@@ -42,6 +42,7 @@ var router = mux.NewRouter().StrictSlash(true)
 func InitializeRoutes() {
 	router.HandleFunc("/devices", adbList)
 	router.HandleFunc("/device-apps/{id}", deviceApps)
+	router.HandleFunc("/device-space/{id}", deviceStorage)
 	router.HandleFunc("/list-files/", listFiles).Methods("POST")
 }
 

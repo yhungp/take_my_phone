@@ -15,7 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Switch, Redirect, useLocation } from "react-router-dom";
 // javascript plugin used to create scrollbars on windows
 import PerfectScrollbar from "perfect-scrollbar";
@@ -32,6 +32,7 @@ import logo from "assets/img/react-logo.png";
 import { BackgroundColorContext } from "contexts/BackgroundColorContext";
 
 import Icons from "views/Icons.js";
+import Dashboard from "views/Dashboard";
 
 var ps;
 
@@ -41,6 +42,7 @@ function Admin(props) {
   const [sidebarOpened, setsidebarOpened] = React.useState(
     document.documentElement.className.indexOf("nav-open") !== -1
   );
+
   React.useEffect(() => {
     if (navigator.platform.indexOf("Win") > -1) {
       document.documentElement.className += " perfect-scrollbar-on";
@@ -62,6 +64,7 @@ function Admin(props) {
       }
     };
   });
+
   React.useEffect(() => {
     if (navigator.platform.indexOf("Win") > -1) {
       let tables = document.querySelectorAll(".table-responsive");
@@ -75,14 +78,29 @@ function Admin(props) {
       mainPanelRef.current.scrollTop = 0;
     }
   }, [location]);
+
   // this function opens and closes the sidebar on small devices
   const toggleSidebar = () => {
     document.documentElement.classList.toggle("nav-open");
     setsidebarOpened(!sidebarOpened);
   };
+
+  const [myRoutes, setMyRoutes] = useState(routes)
+
+  useEffect(() => {}, [myRoutes])
+
+  function refrechRoutes(r) {
+    setMyRoutes(r)
+    setSwitchRoutes(
+      <Switch>
+        {getRoutes(myRoutes)}
+        <Redirect from="*" to="/admin/dashboard" />
+      </Switch>
+    )
+  }
+
   const getRoutes = (routes) => {
     return routes.map((prop, key) => {
-      console.log(routes)
       if (prop.layout === "/admin") {
         return (
           <Route
@@ -96,6 +114,15 @@ function Admin(props) {
       }
     });
   };
+
+
+  const [switchRoutes, setSwitchRoutes] = useState(
+    <Switch>
+      {getRoutes(myRoutes)}
+      <Redirect from="*" to="/admin/dashboard" />
+    </Switch>
+  )
+
   const getBrandText = (path) => {
     for (let i = 0; i < routes.length; i++) {
       if (location.pathname.indexOf(routes[i].layout + routes[i].path) !== -1) {
@@ -104,6 +131,7 @@ function Admin(props) {
     }
     return "Brand";
   };
+
   return (
     <BackgroundColorContext.Consumer>
       {({ color, changeColor }) => (
@@ -123,11 +151,9 @@ function Admin(props) {
                 brandText={getBrandText(location.pathname)}
                 toggleSidebar={toggleSidebar}
                 sidebarOpened={sidebarOpened}
+                refrechRoutes={refrechRoutes}
               />
-              <Switch>
-                {getRoutes(routes)}
-                <Redirect from="*" to="/admin/dashboard" />
-              </Switch>
+              { switchRoutes }
               {
                 // we don't want the Footer to be rendered on map page
                 location.pathname === "/admin/maps" ? null : <Footer fluid />

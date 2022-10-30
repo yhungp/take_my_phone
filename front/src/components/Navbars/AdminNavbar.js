@@ -15,7 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
+import React, { useEffect } from "react";
 // nodejs library that concatenates classes
 import classNames from "classnames";
 
@@ -28,6 +28,8 @@ import {
   DropdownItem,
   UncontrolledDropdown,
   Input,
+  Row,
+  Col,
   InputGroup,
   NavbarBrand,
   Navbar,
@@ -36,13 +38,17 @@ import {
   Container,
   Modal,
   NavbarToggler,
-  ModalHeader
+  Card,
 } from "reactstrap";
+import routes from "routes";
+import Devices from "views/Devices";
 
 function AdminNavbar(props) {
   const [collapseOpen, setcollapseOpen] = React.useState(false);
   const [modalSearch, setmodalSearch] = React.useState(false);
   const [color, setcolor] = React.useState("navbar-transparent");
+  const [devices, setDevices] = React.useState([]);
+
   React.useEffect(() => {
     window.addEventListener("resize", updateColor);
     // Specify how to clean up after this effect:
@@ -50,6 +56,7 @@ function AdminNavbar(props) {
       window.removeEventListener("resize", updateColor);
     };
   });
+
   // function that adds color white/transparent to the navbar on resize (this is for the collapse)
   const updateColor = () => {
     if (window.innerWidth < 993 && collapseOpen) {
@@ -58,6 +65,7 @@ function AdminNavbar(props) {
       setcolor("navbar-transparent");
     }
   };
+
   // this function opens and closes the collapse on small devices
   const toggleCollapse = () => {
     if (collapseOpen) {
@@ -67,10 +75,104 @@ function AdminNavbar(props) {
     }
     setcollapseOpen(!collapseOpen);
   };
+
   // this function is to open the Search modal
   const toggleModalSearch = () => {
     setmodalSearch(!modalSearch);
   };
+
+  const renderListOfUserNames = (devs) => {
+    return devs.map(dev =>
+      // <li>{dev[0]}</li>
+      <Card key={dev[0]} style={{ width: '460px', marginTop: '10px', marginLeft: '10px', padding: '10px' }}>
+        <Row>
+          <Col>
+            <p style={{ fontSize: '18px' }}>Model: {dev[3]}</p>
+            <p style={{ fontSize: '10px' }}>Manufacturer: {dev[1]}</p>
+            <p style={{ fontSize: '10px' }}>Serial: {dev[0]}</p>
+            <p style={{ fontSize: '10px' }}>Codename: {dev[2]}</p>
+          </Col>
+          <Col style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-end', flex: 1 }}>
+            <Button onClick={() => addNewRoute(dev)} >Add</Button>
+          </Col>
+        </Row>
+      </Card>
+    )
+  }
+
+  const addNewRoute = (device) => {
+    routes[routes.length] = {
+      path: "/" + device[0],
+      name: "Device " + device[0],
+      rtlName: "لوحة القيادة",
+      icon: "tim-icons icon-chart-pie-36",
+      component: Devices,
+      layout: "/admin"
+    }
+
+    // props.getRoutes(routes)
+    props.refrechRoutes(routes)
+    
+    toggleModalSearch();
+  }
+
+  const getDevices = () => {
+    fetch("http://localhost:8080/devices")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          if (result == null) {
+            // setCount((count) => 0)
+          }
+          else {
+            // var devs = [];
+
+            // for (var dev in result) {
+            //   const device = result[dev]
+
+            //   console.log(device)
+            //   devs.push(
+            //     <Card key={device[0]} style={{ width: '460px', marginTop: '10px', marginLeft: '10px', padding: '10px' }}>
+            //       <Row>
+            //         <Col>
+            //           <p style={{ fontSize: '18px' }}>Manufacturer: {device[1]}</p>
+            //           <p style={{ fontSize: '10px' }}>Model: {device[3]}</p>
+            //           <p style={{ fontSize: '10px' }}>Serial: {device[0]}</p>
+            //           <p style={{ fontSize: '10px' }}>Codename: {device[2]}</p>
+            //         </Col>
+            //         <Col style={{ alignItems: "center", display:'flex', justifyContent:'flex-end', flex:1 }}>
+            //           <Button onClick={() => addNewRoute(device)} >Add</Button>
+            //         </Col>
+            //       </Row>
+            //     </Card>
+            //   )
+            // }
+
+            // setDevices(devs)
+
+            var devs = {};
+
+            for (var dev in result) {
+              var device = result[dev]
+              devs[device[0]] =
+                { "manufacturer": device[1], "model": device[1], "codename": device[1] }
+            }
+
+            setDevices(result)
+          }
+        },
+        (error) => {
+          // setCount((i) => 0)
+        }
+      )
+  }
+
+  useEffect(() => {
+    if (devices.length !== 0) {
+      toggleModalSearch()
+    }
+  }, [devices])
+
   return (
     <>
       <Navbar className={classNames("navbar-absolute", color)} expand="lg">
@@ -99,7 +201,7 @@ function AdminNavbar(props) {
           <Collapse navbar isOpen={collapseOpen}>
             <Nav className="ml-auto" navbar>
               <InputGroup className="search-bar">
-                <Button color="link" alt={"Add device"} onClick={toggleModalSearch}>
+                <Button color="link" alt={"Add device"} onClick={getDevices}>
                   <i className="tim-icons icon-simple-add" />
                   <span className="d-lg-none d-md-block">Search</span>
                 </Button>
@@ -175,19 +277,13 @@ function AdminNavbar(props) {
         </Container>
       </Navbar>
       <Modal
-        modalClassName="modal-search"
+        // modalClassName="modal-search"
+        style={{ padding: '10px', width: '500px' }}
         isOpen={modalSearch}
         toggle={toggleModalSearch}>
-        <ModalHeader>
-          <Input placeholder="SEARCH" type="text" />
-          <button
-            aria-label="Close"
-            className="close"
-            onClick={toggleModalSearch}
-          >
-            <i className="tim-icons icon-simple-remove" />
-          </button>
-        </ModalHeader>
+        {/* <ListOfDevices devices={devices} addNewRoute={addNewRoute} /> */}
+
+        {renderListOfUserNames(devices)}
       </Modal>
     </>
   );

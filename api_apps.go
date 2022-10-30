@@ -12,35 +12,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func adbList(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+func executeCommand(app string, rest_off_command string) string {
+	out := ""
 
-	app := "adb"
+	cmd := exec.Command(app, strings.Fields(rest_off_command)...)
+	stdout, _ := cmd.Output()
 
-	arg0 := "devices"
+	out = strings.ReplaceAll(string(stdout), "\n", "")
+	out = strings.ReplaceAll(string(out), "\r", "")
 
-	cmd := exec.Command(app, arg0)
-	stdout, err := cmd.Output()
-
-	if err != nil {
-		json.NewEncoder(w).Encode(string(err.Error()))
-	}
-
-	out := strings.ReplaceAll(string(stdout), "\r", "")
-
-	var devices = []string{}
-
-	for _, s := range strings.Split(out, "\n") {
-		if strings.Contains(s, "\t") {
-			dev := strings.Split(s, "\t")[0]
-			devices = append(devices, dev)
-		}
-	}
-
-	devices = delete_empty(devices)
-
-	json.NewEncoder(w).Encode(devices)
+	return out
 }
 
 func getSpecificSize(space_type string, lines []string, app_indexes map[string]int) map[string]string {
@@ -104,14 +85,16 @@ func deviceApps(w http.ResponseWriter, r *http.Request) {
 
 	// Copy aapt-arm-pie to phone
 	copy_cmd := fmt.Sprintf("-s %s push F:/Proyectos/Go/take_my_phone/files/aapt-arm-pie /data/local/tmp", id)
-	cmd := exec.Command("adb", copy_cmd)
+	cmd := exec.Command("adb", strings.Fields(copy_cmd)...)
+	stdout, err := cmd.Output()
 
 	set_permission := fmt.Sprintf("-s %s chmod 0755 /data/local/tmp/aapt-arm-pie", id)
-	cmd = exec.Command("adb", set_permission)
+	cmd = exec.Command("adb", strings.Fields(set_permission)...)
+	stdout, err = cmd.Output()
 
 	// Get diskstats
 	cmd = exec.Command("adb", "-s", id, "shell", "dumpsys", "diskstats")
-	stdout, err := cmd.Output()
+	stdout, err = cmd.Output()
 
 	out := strings.ReplaceAll(string(stdout), "\r", "")
 	splitted_diskstats_out := strings.Split(out, "\n")
