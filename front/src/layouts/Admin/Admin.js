@@ -30,9 +30,10 @@ import routes from "routes.js";
 
 import logo from "assets/img/react-logo.png";
 import { BackgroundColorContext } from "contexts/BackgroundColorContext";
+import Devices from "views/Devices.js";
 
-import Icons from "views/Icons.js";
-import Dashboard from "views/Dashboard";
+// import Icons from "views/Icons.js";
+// import Dashboard from "views/Dashboard";
 
 var ps;
 
@@ -87,7 +88,47 @@ function Admin(props) {
 
   const [myRoutes, setMyRoutes] = useState(routes)
 
-  useEffect(() => {}, [myRoutes])
+  const [start, setStart] = useState(true)
+
+  useEffect(() => {
+    if (start){
+      console.log("Start")
+      getListAddedDevices()     
+    }
+  }, [start])
+
+  const getListAddedDevices = () => {
+    fetch("http://localhost:8080/list-added-devices")
+    .then(res => res.json())
+    .then(
+      (result) => {
+        if (result == null) {
+          // setCount((count) => 0)
+        }
+        else {
+          console.log(result)
+          for (var r in result){
+            var device = result[r]['id']
+            console.log(device)
+            routes[routes.length] = {
+              path: "/" + device[0],
+              name: device[3] + " ( " + device[0] + " )" ,
+              rtlName: "لوحة القيادة",
+              icon: "tim-icons icon-chart-pie-36",
+              component: Devices,
+              layout: "/admin"
+            }
+
+            refrechRoutes(routes)
+          }
+          setStart(false)
+        }
+      },
+      (error) => {
+        // setCount((i) => 0)
+      }
+    )
+  }
 
   function refrechRoutes(r) {
     setMyRoutes(r)

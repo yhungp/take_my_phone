@@ -82,6 +82,16 @@ function AdminNavbar(props) {
   };
 
   const renderListOfUserNames = (devs) => {
+    if (devs.length === 0) {
+      return (
+        <Card key={"fsadfasfdasfda"} style={{ width: '460px', marginTop: '10px', marginLeft: '10px', padding: '10px' }}>
+          <Row>
+            <p style={{ fontSize: '10px' }}>No new devices to add</p>
+          </Row>
+        </Card>
+      )
+    }
+
     return devs.map(dev =>
       // <li>{dev[0]}</li>
       <Card key={dev[0]} style={{ width: '460px', marginTop: '10px', marginLeft: '10px', padding: '10px' }}>
@@ -101,19 +111,7 @@ function AdminNavbar(props) {
   }
 
   const addNewRoute = (device) => {
-    routes[routes.length] = {
-      path: "/" + device[0],
-      name: "Device " + device[0],
-      rtlName: "لوحة القيادة",
-      icon: "tim-icons icon-chart-pie-36",
-      component: Devices,
-      layout: "/admin"
-    }
-
-    // props.getRoutes(routes)
-    props.refrechRoutes(routes)
-    
-    toggleModalSearch();
+    postNewAddedDevice(device)
   }
 
   const getDevices = () => {
@@ -125,31 +123,6 @@ function AdminNavbar(props) {
             // setCount((count) => 0)
           }
           else {
-            // var devs = [];
-
-            // for (var dev in result) {
-            //   const device = result[dev]
-
-            //   console.log(device)
-            //   devs.push(
-            //     <Card key={device[0]} style={{ width: '460px', marginTop: '10px', marginLeft: '10px', padding: '10px' }}>
-            //       <Row>
-            //         <Col>
-            //           <p style={{ fontSize: '18px' }}>Manufacturer: {device[1]}</p>
-            //           <p style={{ fontSize: '10px' }}>Model: {device[3]}</p>
-            //           <p style={{ fontSize: '10px' }}>Serial: {device[0]}</p>
-            //           <p style={{ fontSize: '10px' }}>Codename: {device[2]}</p>
-            //         </Col>
-            //         <Col style={{ alignItems: "center", display:'flex', justifyContent:'flex-end', flex:1 }}>
-            //           <Button onClick={() => addNewRoute(device)} >Add</Button>
-            //         </Col>
-            //       </Row>
-            //     </Card>
-            //   )
-            // }
-
-            // setDevices(devs)
-
             var devs = {};
 
             for (var dev in result) {
@@ -165,6 +138,33 @@ function AdminNavbar(props) {
           // setCount((i) => 0)
         }
       )
+  }
+
+  async function postNewAddedDevice(device) {
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: device })
+    };
+    const response = await fetch('http://localhost:8080/add-device/', requestOptions);
+    const data = await response.json();
+
+    if (data === true) {
+      routes[routes.length] = {
+        path: "/" + device[0],
+        name: device[3] + " ( " + device[0] + " )" ,
+        rtlName: "لوحة القيادة",
+        icon: "tim-icons icon-chart-pie-36",
+        component: Devices,
+        layout: "/admin"
+      }
+
+      props.refrechRoutes(routes)
+      toggleModalSearch();
+    }
+    else {
+      toggleModalSearch();
+    }
   }
 
   useEffect(() => {

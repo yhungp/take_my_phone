@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os/exec"
 	"strconv"
@@ -101,4 +102,44 @@ func getStoragesSize(space_type string, lines []string) string {
 	}
 
 	return ""
+}
+
+var added_devices []addedDevice
+
+type addedDevice struct {
+	Id []string `json:"id"`
+}
+
+func addedDevices(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	reqBody, _ := ioutil.ReadAll(r.Body)
+
+	var added addedDevice
+	json.Unmarshal([]byte(string(reqBody)), &added)
+
+	flag_exist := false
+	if added.Id != nil {
+		for _, d := range added_devices {
+			if d.Id[0] == added.Id[0] {
+				flag_exist = true
+				break
+			}
+		}
+	}
+
+	if !flag_exist {
+		added_devices = append(added_devices, added)
+		json.NewEncoder(w).Encode(true)
+	} else {
+		json.NewEncoder(w).Encode(false)
+	}
+}
+
+func listAddedDevices(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	json.NewEncoder(w).Encode(added_devices)
 }
