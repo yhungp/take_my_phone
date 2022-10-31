@@ -92,8 +92,7 @@ function Admin(props) {
 
   useEffect(() => {
     if (start){
-      console.log("Start")
-      getListAddedDevices()     
+      getListAddedDevices()
     }
   }, [start])
 
@@ -106,15 +105,13 @@ function Admin(props) {
           // setCount((count) => 0)
         }
         else {
-          console.log(result)
           for (var r in result){
             var device = result[r]['id']
-            console.log(device)
             routes[routes.length] = {
               path: "/" + device[0],
               name: device[3] + " ( " + device[0] + " )" ,
               rtlName: "لوحة القيادة",
-              icon: "tim-icons icon-chart-pie-36",
+              icon: "tim-icons icon-mobile",
               component: Devices,
               layout: "/admin"
             }

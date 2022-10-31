@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os/exec"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -57,7 +58,7 @@ func deviceStorage(w http.ResponseWriter, r *http.Request) {
 	app := "adb"
 	code := fmt.Sprintf("-s %s shell dumpsys diskstats", id[len(id)-1])
 	cmd := exec.Command(app, strings.Fields(code)...)
-	stdout, _ := cmd.Output()
+	stdout, err := cmd.Output()
 
 	// out := strings.ReplaceAll(string(stdout), "\r", "")
 	lines := strings.Split(string(stdout), "\n")
@@ -69,8 +70,14 @@ func deviceStorage(w http.ResponseWriter, r *http.Request) {
 	system := getStoragesSize("System Size:", lines)
 	downloads := getStoragesSize("Downloads Size:", lines)
 
-	cmd = exec.Command(app, strings.Fields("shell df /sdcard | tail -n 1")...)
-	stdout, _ = cmd.Output()
+	code = fmt.Sprintf("-s %s shell df /sdcard | tail -n 1", id[len(id)-1])
+	cmd = exec.Command(app, strings.Fields(code)...)
+	stdout, err = cmd.Output()
+
+	if strings.Contains(string(stdout), "device offline") || err != nil {
+		json.NewEncoder(w).Encode("device offline")
+		return
+	}
 
 	storage := strings.Fields(string(stdout))
 	total := storage[1] + "000"
@@ -142,4 +149,93 @@ func listAddedDevices(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	json.NewEncoder(w).Encode(added_devices)
+}
+
+type deviceRAM struct {
+	Total     int `json:"total"`
+	Available int `json:"available"`
+}
+
+func getDeviceRAM(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	id := strings.Fields(mux.Vars(r)["id"])
+
+	app := "adb"
+	code := fmt.Sprintf("-s %s shell cat /proc/meminfo", id[len(id)-1])
+	cmd := exec.Command(app, strings.Fields(code)...)
+	stdout, _ := cmd.Output()
+
+	lines := strings.Split(string(stdout), "\n")
+	var ram deviceRAM
+
+	ram.Available, _ = strconv.Atoi(getRamFromDescription("MemAvailable:", lines))
+	ram.Total, _ = strconv.Atoi(getRamFromDescription("MemTotal:", lines))
+
+	json.NewEncoder(w).Encode(ram)
+}
+
+func getRamFromDescription(space_type string, lines []string) string {
+	for _, l := range lines {
+		if strings.Contains(l, space_type) {
+			size := strings.Fields(l)
+
+			return size[len(size)-2]
+		}
+	}
+
+	return ""
+}
+
+func getDeviceInformation(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	id := mux.Vars(r)["id"]
+
+	cmd := exec.Command("adb", "-s", id, "shell", "cmd package list packages -3")
+	stdout, err := cmd.Output()
+
+	if err != nil {
+		json.NewEncoder(w).Encode(string(err.Error()))
+	}
+
+	out := strings.ReplaceAll(string(stdout), "\r", "")
+
+	var third_party_apps = strings.Split(out, "\n")
+	third_party_apps = delete_empty(third_party_apps)
+
+	for i, s := range third_party_apps {
+		third_party_apps[i] = s[8:]
+	}
+
+	sort.Strings(third_party_apps)
+
+	app := "adb"
+
+	brand := executeCommand(app, fmt.Sprintf("-s %s shell getprop ro.product.vendor.manufacturer", id))
+	device := executeCommand(app, fmt.Sprintf("-s %s shell getprop ro.product.vendor.device", id))
+	model := executeCommand(app, fmt.Sprintf("-s %s shell getprop ro.product.vendor.model", id))
+	board := executeCommand(app, fmt.Sprintf("-s %s shell getprop ro.product.board", id))
+	android := executeCommand(app, fmt.Sprintf("-s %s shell getprop ro.build.version.release", id))
+
+	var info PhoneInformation
+	info.AppCount = len(third_party_apps)
+	info.Brand = brand
+	info.Device = device
+	info.Model = model
+	info.Board = board
+	info.Android = android
+
+	json.NewEncoder(w).Encode(info)
+}
+
+type PhoneInformation struct {
+	Brand    string `json:"brand"`
+	Device   string `json:"device"`
+	Model    string `json:"model"`
+	Board    string `json:"board"`
+	Android  string `json:"android"`
+	AppCount int    `json:"app_count"`
 }

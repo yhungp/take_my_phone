@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /*!
 
 =========================================================
@@ -31,31 +32,18 @@ import {
   CardHeader,
   CardBody,
   CardTitle,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
-  Label,
-  FormGroup,
-  Input,
-  Table,
   Row,
   Col,
-  UncontrolledTooltip
 } from "reactstrap";
 
-// core components
-import {
-  chartExample1,
-  chartExample2,
-  chartExample3,
-  chartExample4
-} from "variables/charts.js";
+import MyPhoneInformation from 'components/Device/MyPhoneInformation';
+import MyPhoneApps from 'components/Device/MyPhoneApps';
 
 function Dashboard(props) {
   const [bigChartData, setbigChartData] = React.useState("data1");
-  const setBgChartData = (name) => {
+  const setBgChartData = (name, index) => {
     setbigChartData(name);
+    setCurrentInfo(index);
   };
 
   const [deviceName, setDeviceName] = useState("Device")
@@ -66,16 +54,24 @@ function Dashboard(props) {
 
   var [storageStarted, setStorageStarted] = useState(true)
   var [storagesDescription, setStoragesDescription] = useState(null)
+  var [storagesValues, setStoragesValues] = useState(null)
+  var [storageTotal, setStoragesTotal] = useState(null)
+  var [mobileInformation, setMobileInformation] = useState({})
+  var [currentInfo, setCurrentInfo] = useState(0)
+
+  var deviceSerial = props['match']['path'].replace("/admin/", "")
 
   useEffect(() => {
     if (storageStarted) {
       getStorage()
+      getRamInfo()
+      getAppsCount()
       setStorageStarted(false)
     }
   }, [storageStarted])
 
-  const getStorage = () => {
-    fetch("http://localhost:8080/device-space/" + props['match']['path'].replace("/admin/", "Device "))
+  function getAppsCount() {
+    fetch("http://localhost:8080/device-info/" + deviceSerial)
       .then(res => res.json())
       .then(
         (result) => {
@@ -83,25 +79,160 @@ function Dashboard(props) {
             // setCount((count) => 0)
           }
           else {
-            for (var r in result) {
-              console.log(r, formatBytes(result[r]))
+            if (result !== "device offline") {
+              setMobileInformation(result)
             }
+          }
+        },
+        (error) => {
+          // setCount((i) => 0)
+        }
+      )
+  }
 
-            setStoragesDescription(
-              <>
-                <PieChart
-                  data={[
-                    { title: 'Used', value: result['used'], color: '#C13C37' },
-                    { title: 'Free', value: result['free'], color: 'blue' },
-                  ]}
-                />
+  const getStorage = () => {
+    fetch("http://localhost:8080/device-space/" + deviceSerial)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          if (result == null) {
+            // setCount((count) => 0)
+          }
+          else {
+            if (result !== "device offline") {
+              setStoragesValues(result)
+              setStoragesTotal(result['used'] + result['free'])
 
-                <Row>
-                  <p>Used {formatBytes(result['used'])}</p>
-                  <p>Free {formatBytes(result['free'])}</p>
-                </Row>
-              </>
-            )
+              setStoragesDescription(
+                <div>
+                  <div style={{ height: '150px' }}>
+                    <PieChart
+                      animate
+                      animationDuration={500}
+                      animationEasing="ease-out"
+                      data={[
+                        { title: 'Used', value: result['used'], color: '#1E1E8F' },
+                        { title: 'Free', value: result['free'], color: '#1E8BF8' },
+                      ]}
+                    />
+                  </div>
+
+                  <Row>
+                    <Col style={{ marginLeft: '20px', marginTop: '20px' }}>
+                      <Row>
+                        <div style={{
+                          marginTop: '5px',
+                          marginRight: '10px',
+                          height: '10px',
+                          width: '10px',
+                          backgroundColor: "#1E1E8F",
+                          borderRadius: '50%',
+                        }} ></div>
+                        <p>Used {formatBytes(result['used'])}</p>
+                      </Row>
+
+                      <Row>
+                        <div style={{
+                          marginTop: '5px',
+                          marginRight: '10px',
+                          height: '10px',
+                          width: '10px',
+                          backgroundColor: "#1E8BF8",
+                          borderRadius: '50%',
+                        }} ></div>
+                        <p>Free {formatBytes(result['free'])}</p>
+                      </Row>
+                    </Col>
+
+                    <Col style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-end', flex: 1 }}>
+                      <Button
+                        className={classNames("btn-simple")}
+                        onClick={() => getStorage()}
+                        style={{ alignItems: "center", marginRight: '10px' }}>
+                        <i className="tim-icons icon-refresh-01" style={{ color: '#888888' }} />
+                      </Button>
+                    </Col>
+                  </Row>
+                </div>
+              )
+            }
+          }
+        },
+        (error) => {
+          // setCount((i) => 0)
+        }
+      )
+  }
+
+  const [ramInfo, setRamInfo] = useState(null)
+  const [ramValue, setRamValue] = useState([0, 0])
+
+  const getRamInfo = () => {
+    fetch(`http://localhost:8080/device-ram/` + deviceSerial)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          if (result == null) {
+            // setCount((count) => 0)
+          }
+          else {
+            if (result !== "device offline") {
+              setRamValue(result)
+
+              setRamInfo(
+                <div>
+                  <div style={{ height: '150px' }}>
+                    <PieChart
+                      animate
+                      animationDuration={500}
+                      animationEasing="ease-out"
+                      data={[
+                        { title: 'Used', value: result['total'] - result['available'], color: '#1E1E8F' },
+                        { title: 'Free', value: result['available'], color: '#1E8BF8' },
+                      ]}
+                    />
+                  </div>
+
+                  <Row>
+                    <Col style={{ marginLeft: '20px', marginTop: '20px' }}>
+                      <Row>
+                        <div style={{
+                          marginTop: '5px',
+                          marginRight: '10px',
+                          height: '10px',
+                          width: '10px',
+                          backgroundColor: "#1E1E8F",
+                          borderRadius: '50%',
+                        }} ></div>
+
+                        <p>Used {formatBytes((result['total'] - result['available']) * 1000)}</p>
+                      </Row>
+
+                      <Row>
+                        <div style={{
+                          marginTop: '5px',
+                          marginRight: '10px',
+                          height: '10px',
+                          width: '10px',
+                          backgroundColor: "#1E8BF8",
+                          borderRadius: '50%',
+                        }} ></div>
+                        <p>Free {formatBytes(result['available'] * 1000)}</p>
+                      </Row>
+                    </Col>
+
+                    <Col style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-end', flex: 1 }}>
+                      <Button
+                        className={classNames("btn-simple")}
+                        onClick={() => getRamInfo()}
+                        style={{ alignItems: "center", marginRight: '10px' }}>
+                        <i className="tim-icons icon-refresh-01" style={{ color: '#888888' }} />
+                      </Button>
+                    </Col>
+                  </Row>
+                </div>
+              )
+            }
           }
         },
         (error) => {
@@ -120,6 +251,33 @@ function Dashboard(props) {
     const i = Math.floor(Math.log(kilo_bytes) / Math.log(k))
 
     return `${parseFloat((kilo_bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  }
+
+  function setInfoCards() {
+    switch (currentInfo) {
+      case 0:
+        return <MyPhoneInformation
+          storagesDescription={storagesDescription}
+          formatBytes={formatBytes}
+          storageTotal={storageTotal}
+          storagesValues={storagesValues}
+          ramInfo={ramInfo}
+          mobileInformation={mobileInformation}
+          ramValue={ramValue}
+        />
+      case 1:
+        return <MyPhoneApps deviceName={props['match']['path'].replace("/admin/", "")}/>
+      default:
+        return <MyPhoneInformation
+          storagesDescription={storagesDescription}
+          formatBytes={formatBytes}
+          storageTotal={storageTotal}
+          storagesValues={storagesValues}
+          ramInfo={ramInfo}
+          mobileInformation={mobileInformation}
+          ramValue={ramValue}
+        />
+    }
   }
 
   return (
@@ -146,7 +304,7 @@ function Dashboard(props) {
                         color="info"
                         id="0"
                         size="sm"
-                        onClick={() => setBgChartData("data1")}
+                        onClick={() => setBgChartData("data1", 0)}
                       >
                         <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
                           My phone
@@ -163,7 +321,7 @@ function Dashboard(props) {
                         className={classNames("btn-simple", {
                           active: bigChartData === "data2"
                         })}
-                        onClick={() => setBgChartData("data2")}
+                        onClick={() => setBgChartData("data2", 1)}
                       >
                         <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
                           Apps
@@ -180,7 +338,7 @@ function Dashboard(props) {
                         className={classNames("btn-simple", {
                           active: bigChartData === "data3"
                         })}
-                        onClick={() => setBgChartData("data3")}>
+                        onClick={() => setBgChartData("data3", 2)}>
                         <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
                           Files
                         </span>
@@ -240,403 +398,14 @@ function Dashboard(props) {
                   </Col>
                 </Row>
               </CardHeader>
-              {/* <CardBody>
-                <div className="chart-area">
-                  <Line
-                    data={chartExample1[bigChartData]}
-                    options={chartExample1.options}
-                  />
-                </div>
-              </CardBody> */}
             </Card>
           </Col>
         </Row>
-        <Row>
-          <Col lg="4">
-            <Card className="card-chart">
-              <CardHeader>
-                <h5 className="card-category">Total Shipments</h5>
-                <CardTitle tag="h3">
-                  <i className="tim-icons icon-bell-55 text-info" /> 763,215
-                </CardTitle>
-              </CardHeader>
-              <CardBody>
-                <div className="chart-area">
-                  {storagesDescription}
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col lg="4">
-            <Card className="card-chart">
-              <CardHeader>
-                <h5 className="card-category">Daily Sales</h5>
-                <CardTitle tag="h3">
-                  <i className="tim-icons icon-delivery-fast text-primary" />{" "}
-                  3,500€
-                </CardTitle>
-              </CardHeader>
-              <CardBody>
-                <div className="chart-area">
-                  <Bar
-                    data={chartExample3.data}
-                    options={chartExample3.options}
-                  />
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col lg="4">
-            <Card className="card-chart">
-              <CardHeader>
-                <h5 className="card-category">Completed Tasks</h5>
-                <CardTitle tag="h3">
-                  <i className="tim-icons icon-send text-success" /> 12,100K
-                </CardTitle>
-              </CardHeader>
-              <CardBody>
-                <div className="chart-area">
-                  <Line
-                    data={chartExample4.data}
-                    options={chartExample4.options}
-                  />
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-        <Row>
-          <Col lg="6" md="12">
-            <Card className="card-tasks">
-              <CardHeader>
-                <h6 className="title d-inline">Tasks(5)</h6>
-                <p className="card-category d-inline"> today</p>
-                <UncontrolledDropdown>
-                  <DropdownToggle
-                    caret
-                    className="btn-icon"
-                    color="link"
-                    data-toggle="dropdown"
-                    type="button"
-                  >
-                    <i className="tim-icons icon-settings-gear-63" />
-                  </DropdownToggle>
-                  <DropdownMenu aria-labelledby="dropdownMenuLink" right>
-                    <DropdownItem
-                      href="#pablo"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      Action
-                    </DropdownItem>
-                    <DropdownItem
-                      href="#pablo"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      Another action
-                    </DropdownItem>
-                    <DropdownItem
-                      href="#pablo"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      Something else
-                    </DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
-              </CardHeader>
-              <CardBody>
-                <div className="table-full-width table-responsive">
-                  <Table>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input defaultValue="" type="checkbox" />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">Update the Documentation</p>
-                          <p className="text-muted">
-                            Dwuamish Head, Seattle, WA 8:47 AM
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip636901683"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip636901683"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input
-                                defaultChecked
-                                defaultValue=""
-                                type="checkbox"
-                              />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">GDPR Compliance</p>
-                          <p className="text-muted">
-                            The GDPR is a regulation that requires businesses to
-                            protect the personal data and privacy of Europe
-                            citizens for transactions that occur within EU
-                            member states.
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip457194718"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip457194718"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input defaultValue="" type="checkbox" />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">Solve the issues</p>
-                          <p className="text-muted">
-                            Fifty percent of all respondents said they would be
-                            more likely to shop at a company
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip362404923"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip362404923"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input defaultValue="" type="checkbox" />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">Release v2.0.0</p>
-                          <p className="text-muted">
-                            Ra Ave SW, Seattle, WA 98116, SUA 11:19 AM
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip818217463"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip818217463"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input defaultValue="" type="checkbox" />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">Export the processed files</p>
-                          <p className="text-muted">
-                            The report also shows that consumers will not easily
-                            forgive a company once a breach exposing their
-                            personal data occurs.
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip831835125"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip831835125"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input defaultValue="" type="checkbox" />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">Arival at export process</p>
-                          <p className="text-muted">
-                            Capitol Hill, Seattle, WA 12:34 AM
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip217595172"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip217595172"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </Table>
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col lg="6" md="12">
-            <Card>
-              <CardHeader>
-                <CardTitle tag="h4">Simple Table</CardTitle>
-              </CardHeader>
-              <CardBody>
-                <Table className="tablesorter" responsive>
-                  <thead className="text-primary">
-                    <tr>
-                      <th>Name</th>
-                      <th>Country</th>
-                      <th>City</th>
-                      <th className="text-center">Salary</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Dakota Rice</td>
-                      <td>Niger</td>
-                      <td>Oud-Turnhout</td>
-                      <td className="text-center">$36,738</td>
-                    </tr>
-                    <tr>
-                      <td>Minerva Hooper</td>
-                      <td>Curaçao</td>
-                      <td>Sinaai-Waas</td>
-                      <td className="text-center">$23,789</td>
-                    </tr>
-                    <tr>
-                      <td>Sage Rodriguez</td>
-                      <td>Netherlands</td>
-                      <td>Baileux</td>
-                      <td className="text-center">$56,142</td>
-                    </tr>
-                    <tr>
-                      <td>Philip Chaney</td>
-                      <td>Korea, South</td>
-                      <td>Overland Park</td>
-                      <td className="text-center">$38,735</td>
-                    </tr>
-                    <tr>
-                      <td>Doris Greene</td>
-                      <td>Malawi</td>
-                      <td>Feldkirchen in Kärnten</td>
-                      <td className="text-center">$63,542</td>
-                    </tr>
-                    <tr>
-                      <td>Mason Porter</td>
-                      <td>Chile</td>
-                      <td>Gloucester</td>
-                      <td className="text-center">$78,615</td>
-                    </tr>
-                    <tr>
-                      <td>Jon Porter</td>
-                      <td>Portugal</td>
-                      <td>Gloucester</td>
-                      <td className="text-center">$98,615</td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
+
+        {
+          setInfoCards()
+        }
+
       </div>
     </>
   );

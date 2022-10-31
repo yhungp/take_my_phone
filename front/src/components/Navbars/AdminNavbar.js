@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /*!
 
 =========================================================
@@ -27,7 +28,6 @@ import {
   DropdownMenu,
   DropdownItem,
   UncontrolledDropdown,
-  Input,
   Row,
   Col,
   InputGroup,
@@ -93,7 +93,6 @@ function AdminNavbar(props) {
     }
 
     return devs.map(dev =>
-      // <li>{dev[0]}</li>
       <Card key={dev[0]} style={{ width: '460px', marginTop: '10px', marginLeft: '10px', padding: '10px' }}>
         <Row>
           <Col>
@@ -154,7 +153,7 @@ function AdminNavbar(props) {
         path: "/" + device[0],
         name: device[3] + " ( " + device[0] + " )" ,
         rtlName: "لوحة القيادة",
-        icon: "tim-icons icon-chart-pie-36",
+        icon: "tim-icons icon-mobile",
         component: Devices,
         layout: "/admin"
       }
