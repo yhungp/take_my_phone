@@ -266,7 +266,9 @@ function Dashboard(props) {
           ramValue={ramValue}
         />
       case 1:
-        return <MyPhoneApps deviceName={props['match']['path'].replace("/admin/", "")}/>
+        return <MyPhoneApps
+          formatBytes={formatBytes} 
+          deviceName={props['match']['path'].replace("/admin/", "")}/>
       default:
         return <MyPhoneInformation
           storagesDescription={storagesDescription}

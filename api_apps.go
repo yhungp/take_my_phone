@@ -88,7 +88,7 @@ func deviceApps(w http.ResponseWriter, r *http.Request) {
 	cmd := exec.Command("adb", strings.Fields(copy_cmd)...)
 	stdout, err := cmd.Output()
 
-	set_permission := fmt.Sprintf("-s %s chmod 0755 /data/local/tmp/aapt-arm-pie", id)
+	set_permission := fmt.Sprintf("-s %s shell chmod 0755 /data/local/tmp/aapt-arm-pie", id)
 	cmd = exec.Command("adb", strings.Fields(set_permission)...)
 	stdout, err = cmd.Output()
 
