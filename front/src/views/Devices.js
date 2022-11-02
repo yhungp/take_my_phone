@@ -266,9 +266,23 @@ function Dashboard(props) {
           ramValue={ramValue}
         />
       case 1:
-        return <MyPhoneApps
-          formatBytes={formatBytes} 
-          deviceName={props['match']['path'].replace("/admin/", "")}/>
+        var phoneApps = <MyPhoneApps
+          formatBytes={formatBytes}
+          deviceName={props['match']['path'].replace("/admin/", "")}
+          myApps={apps}
+          updateApps={updateApps}
+          globalPagination={globalPagination}
+          setGlobalPagination={setGlobalPagination}
+        />
+
+        if (apps == null) {
+          callForApps()
+          return null
+        }
+        else {
+          return phoneApps
+        }
+
       default:
         return <MyPhoneInformation
           storagesDescription={storagesDescription}
@@ -280,6 +294,32 @@ function Dashboard(props) {
           ramValue={ramValue}
         />
     }
+  }
+
+  const [apps, setApps] = useState(null)
+  const [globalPagination, setGlobalPagination] = useState(10)
+
+  const callForApps = () => {
+    var dev = props['match']['path'].replace("/admin/", "")
+    fetch("http://localhost:8080/device-apps/" + dev)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          if (result == null) {
+            // setCount((count) => 0)
+          }
+          else {
+            setApps(result)
+          }
+        },
+        (error) => {
+          // setCount((i) => 0)
+        }
+      )
+  }
+
+  const updateApps = () => {
+    callForApps()
   }
 
   return (

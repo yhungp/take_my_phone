@@ -16,17 +16,24 @@ import {
 
 export default function MyPhoneApps(props) {
   var formatBytes = props.formatBytes;
+  var apps = props.myApps;
+  const updateApps = props.updateApps;
+  const globalPagination = props.globalPagination;
+  const setGlobalPagination = props.setGlobalPagination;
 
-  const [deviceName, setDeviceName] = useState(props.deviceName)
+  const deviceName = props.deviceName
   const [start, setStart] = useState(true)
 
   const [appsComponent, setAppsComponent] = useState(null)
-  const [apps, setApps] = useState(null)
   const [totalPages, setTotalPages] = useState(0)
   const [currentPage, setCurrentPage] = useState(0)
   const [pagination, setPagination] = useState(0)
 
   const changePagination = (pagination) => {
+    if (pagination !== globalPagination){
+      setGlobalPagination(pagination)
+    }
+    
     setAppsByPagination(pagination)
   }
 
@@ -73,15 +80,13 @@ export default function MyPhoneApps(props) {
 
   useEffect(() => {
     if (start) {
-      console.log("Getting apps")
-      callForApps()
       setStart(false)
     }
   }, [deviceName])
 
   useEffect(() => {
     if (apps !== null) {
-      changePagination(10)
+      changePagination(globalPagination)
     }
   }, [apps])
 
@@ -103,26 +108,6 @@ export default function MyPhoneApps(props) {
     return text.length > 10 ? `${text.substring(0, 10)}...` : text;
   }
 
-  const callForApps = () => {
-    fetch("http://localhost:8080/device-apps/" + deviceName)
-      .then(res => res.json())
-      .then(
-        (result) => {
-          if (result == null) {
-            // setCount((count) => 0)
-          }
-          else {
-            setApps(result)
-            // setAppsComponent(apps)
-            // setTotalPages(_ => pages)
-          }
-        },
-        (error) => {
-          // setCount((i) => 0)
-        }
-      )
-  }
-
   return (
     <>
       <div className="content">
@@ -140,6 +125,7 @@ export default function MyPhoneApps(props) {
                       <Button onClick={() => changePagination(100)} className={classNames("btn-simple")} style={{ width: '80px' }}>100</Button>
                       <Button onClick={() => changePagination(200)} className={classNames("btn-simple")} style={{ width: '80px' }}>200</Button>
                       <Button
+                        onClick={() => updateApps()}
                         className={classNames("btn-simple")}
                         style={{ alignItems: "center", marginRight: '10px' }}>
                         <i className="tim-icons icon-refresh-01" style={{ color: '#888888' }} />
