@@ -31,6 +31,8 @@ import routes from "routes.js";
 import logo from "assets/img/react-logo.png";
 import { BackgroundColorContext } from "contexts/BackgroundColorContext";
 import Devices from "views/Devices.js";
+import Dashboard from "views/Dashboard";
+import Icons from "views/Icons";
 
 // import Icons from "views/Icons.js";
 // import Dashboard from "views/Dashboard";
@@ -105,6 +107,25 @@ function Admin(props) {
           // setCount((count) => 0)
         }
         else {
+          routes =[
+            {
+              path: "/dashboard",
+              name: "Dashboard",
+              rtlName: "لوحة القيادة",
+              icon: "tim-icons icon-chart-pie-36",
+              component: Dashboard,
+              layout: "/admin"
+            },
+            {
+              path: "/icons",
+              name: "Icons",
+              rtlName: "الرموز",
+              icon: "tim-icons icon-atom",
+              component: Icons,
+              layout: "/admin"
+            },
+          ]
+          
           for (var r in result){
             var device = result[r]['id']
             routes[routes.length] = {

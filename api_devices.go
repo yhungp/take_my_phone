@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os/exec"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -32,6 +33,9 @@ func adbList(w http.ResponseWriter, r *http.Request) {
 
 	var devices = [][]string{}
 
+	dbDevices := listDBdevices(database)
+	devices = append(devices, dbDevices...)
+
 	for _, s := range strings.Split(out, "\n") {
 		if strings.Contains(s, "\t") {
 			dev := strings.Split(s, "\t")[0]
@@ -40,7 +44,17 @@ func adbList(w http.ResponseWriter, r *http.Request) {
 			device := executeCommand(app, fmt.Sprintf("-s %s shell getprop ro.product.vendor.device", dev))
 			model := executeCommand(app, fmt.Sprintf("-s %s shell getprop ro.product.vendor.model", dev))
 
-			devices = append(devices, []string{dev, brand, device, model})
+			flag_add := true
+			for _, d := range devices {
+				if reflect.DeepEqual(d, []string{dev, brand, device, model}) {
+					flag_add = false
+					break
+				}
+			}
+
+			if flag_add {
+				devices = append(devices, []string{dev, brand, device, model})
+			}
 		}
 	}
 
@@ -136,8 +150,9 @@ func addedDevices(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	addDevices(database, added.Id[0], added.Id[1], added.Id[2], added.Id[3])
+
 	if !flag_exist {
-		added_devices = append(added_devices, added)
 		json.NewEncoder(w).Encode(true)
 	} else {
 		json.NewEncoder(w).Encode(false)
@@ -147,6 +162,15 @@ func addedDevices(w http.ResponseWriter, r *http.Request) {
 func listAddedDevices(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	dbDevices := listDBdevices(database)
+	added_devices = make([]addedDevice, 0)
+
+	for _, dev := range dbDevices {
+		var added addedDevice
+		added.Id = []string{dev[0], dev[1], dev[2], dev[3]}
+		added_devices = append(added_devices, added)
+	}
 
 	json.NewEncoder(w).Encode(added_devices)
 }

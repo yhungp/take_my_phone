@@ -27,6 +27,7 @@ func (c *counter) Value() int {
 }
 
 func main() {
+	startDatabase()
 	api()
 
 	// w := webview2.NewWithOptions(webview2.WebViewOptions{

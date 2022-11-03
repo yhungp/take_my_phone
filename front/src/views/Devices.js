@@ -20,7 +20,6 @@ import React, { useEffect, useState } from "react";
 // nodejs library that concatenates classes
 import classNames from "classnames";
 // react plugin used to create charts
-import { Line, Bar } from "react-chartjs-2";
 
 import { PieChart } from 'react-minimal-pie-chart';
 
@@ -38,9 +37,15 @@ import {
 
 import MyPhoneInformation from 'components/Device/MyPhoneInformation';
 import MyPhoneApps from 'components/Device/MyPhoneApps';
+import SectionButton from 'components/Device/SectionsButtons'
+import {
+  getRamInfo,
+  getStorage,
+  getAppsCount
+} from 'components/Device/ApiCalls'
 
 function Dashboard(props) {
-  const [bigChartData, setbigChartData] = React.useState("data1");
+  const [bigChartData, setbigChartData] = React.useState("data0");
   const setBgChartData = (name, index) => {
     setbigChartData(name);
     setCurrentInfo(index);
@@ -63,183 +68,25 @@ function Dashboard(props) {
 
   useEffect(() => {
     if (storageStarted) {
-      getStorage()
-      getRamInfo()
-      getAppsCount()
+      getStorage(
+        deviceSerial,
+        setStoragesValues,
+        setStoragesTotal,
+        setStoragesDescription,
+        formatBytes
+      )
+
+      getRamInfo(
+        deviceSerial, setRamInfo, setRamValue, formatBytes
+      )
+
+      getAppsCount(deviceSerial, setMobileInformation)
       setStorageStarted(false)
     }
   }, [storageStarted])
 
-  function getAppsCount() {
-    fetch("http://localhost:8080/device-info/" + deviceSerial)
-      .then(res => res.json())
-      .then(
-        (result) => {
-          if (result == null) {
-            // setCount((count) => 0)
-          }
-          else {
-            if (result !== "device offline") {
-              setMobileInformation(result)
-            }
-          }
-        },
-        (error) => {
-          // setCount((i) => 0)
-        }
-      )
-  }
-
-  const getStorage = () => {
-    fetch("http://localhost:8080/device-space/" + deviceSerial)
-      .then(res => res.json())
-      .then(
-        (result) => {
-          if (result == null) {
-            // setCount((count) => 0)
-          }
-          else {
-            if (result !== "device offline") {
-              setStoragesValues(result)
-              setStoragesTotal(result['used'] + result['free'])
-
-              setStoragesDescription(
-                <div>
-                  <div style={{ height: '150px' }}>
-                    <PieChart
-                      animate
-                      animationDuration={500}
-                      animationEasing="ease-out"
-                      data={[
-                        { title: 'Used', value: result['used'], color: '#1E1E8F' },
-                        { title: 'Free', value: result['free'], color: '#1E8BF8' },
-                      ]}
-                    />
-                  </div>
-
-                  <Row>
-                    <Col style={{ marginLeft: '20px', marginTop: '20px' }}>
-                      <Row>
-                        <div style={{
-                          marginTop: '5px',
-                          marginRight: '10px',
-                          height: '10px',
-                          width: '10px',
-                          backgroundColor: "#1E1E8F",
-                          borderRadius: '50%',
-                        }} ></div>
-                        <p>Used {formatBytes(result['used'])}</p>
-                      </Row>
-
-                      <Row>
-                        <div style={{
-                          marginTop: '5px',
-                          marginRight: '10px',
-                          height: '10px',
-                          width: '10px',
-                          backgroundColor: "#1E8BF8",
-                          borderRadius: '50%',
-                        }} ></div>
-                        <p>Free {formatBytes(result['free'])}</p>
-                      </Row>
-                    </Col>
-
-                    <Col style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-end', flex: 1 }}>
-                      <Button
-                        className={classNames("btn-simple")}
-                        onClick={() => getStorage()}
-                        style={{ alignItems: "center", marginRight: '10px' }}>
-                        <i className="tim-icons icon-refresh-01" style={{ color: '#888888' }} />
-                      </Button>
-                    </Col>
-                  </Row>
-                </div>
-              )
-            }
-          }
-        },
-        (error) => {
-          // setCount((i) => 0)
-        }
-      )
-  }
-
   const [ramInfo, setRamInfo] = useState(null)
   const [ramValue, setRamValue] = useState([0, 0])
-
-  const getRamInfo = () => {
-    fetch(`http://localhost:8080/device-ram/` + deviceSerial)
-      .then(res => res.json())
-      .then(
-        (result) => {
-          if (result == null) {
-            // setCount((count) => 0)
-          }
-          else {
-            if (result !== "device offline") {
-              setRamValue(result)
-
-              setRamInfo(
-                <div>
-                  <div style={{ height: '150px' }}>
-                    <PieChart
-                      animate
-                      animationDuration={500}
-                      animationEasing="ease-out"
-                      data={[
-                        { title: 'Used', value: result['total'] - result['available'], color: '#1E1E8F' },
-                        { title: 'Free', value: result['available'], color: '#1E8BF8' },
-                      ]}
-                    />
-                  </div>
-
-                  <Row>
-                    <Col style={{ marginLeft: '20px', marginTop: '20px' }}>
-                      <Row>
-                        <div style={{
-                          marginTop: '5px',
-                          marginRight: '10px',
-                          height: '10px',
-                          width: '10px',
-                          backgroundColor: "#1E1E8F",
-                          borderRadius: '50%',
-                        }} ></div>
-
-                        <p>Used {formatBytes((result['total'] - result['available']) * 1000)}</p>
-                      </Row>
-
-                      <Row>
-                        <div style={{
-                          marginTop: '5px',
-                          marginRight: '10px',
-                          height: '10px',
-                          width: '10px',
-                          backgroundColor: "#1E8BF8",
-                          borderRadius: '50%',
-                        }} ></div>
-                        <p>Free {formatBytes(result['available'] * 1000)}</p>
-                      </Row>
-                    </Col>
-
-                    <Col style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-end', flex: 1 }}>
-                      <Button
-                        className={classNames("btn-simple")}
-                        onClick={() => getRamInfo()}
-                        style={{ alignItems: "center", marginRight: '10px' }}>
-                        <i className="tim-icons icon-refresh-01" style={{ color: '#888888' }} />
-                      </Button>
-                    </Col>
-                  </Row>
-                </div>
-              )
-            }
-          }
-        },
-        (error) => {
-          // setCount((i) => 0)
-        }
-      )
-  }
 
   function formatBytes(kilo_bytes, decimals = 2) {
     if (!+kilo_bytes) return '0 KB'
@@ -338,104 +185,60 @@ function Dashboard(props) {
                       className="btn-group-toggle float-right"
                       data-toggle="buttons"
                     >
-                      <Button
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data1"
-                        })}
-                        color="info"
-                        id="0"
-                        size="sm"
-                        onClick={() => setBgChartData("data1", 0)}
-                      >
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          My phone
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-single-02" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="1"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data2"
-                        })}
-                        onClick={() => setBgChartData("data2", 1)}
-                      >
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Apps
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-gift-2" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="2"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data3"
-                        })}
-                        onClick={() => setBgChartData("data3", 2)}>
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Files
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-tap-02" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="2"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data4"
-                        })}
-                        onClick={() => setBgChartData("data4")}>
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Music
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-tap-02" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="2"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data5"
-                        })}
-                        onClick={() => setBgChartData("data5")}>
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Video
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-tap-02" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="2"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data6"
-                        })}
-                        onClick={() => setBgChartData("data6")}>
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Photos
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-tap-02" />
-                        </span>
-                      </Button>
+                      <SectionButton
+                        bigChartData={bigChartData}
+                        setBgChartData={setBgChartData}
+                        data={"data0"}
+                        id={"0"}
+                        index={0}
+                        name={"My phone"}
+                      />
+                      <SectionButton
+                        bigChartData={bigChartData}
+                        setBgChartData={setBgChartData}
+                        data={"data1"}
+                        id={"1"}
+                        index={1}
+                        name={"Apps"}
+                      />
+                      <SectionButton
+                        bigChartData={bigChartData}
+                        setBgChartData={setBgChartData}
+                        data={"data2"}
+                        id={"2"}
+                        index={2}
+                        name={"Files"}
+                      />
+                      <SectionButton
+                        bigChartData={bigChartData}
+                        setBgChartData={setBgChartData}
+                        data={"data3"}
+                        id={"3"}
+                        index={3}
+                        name={"Music"}
+                      />
+                      <SectionButton
+                        bigChartData={bigChartData}
+                        setBgChartData={setBgChartData}
+                        data={"data4"}
+                        id={"1"}
+                        index={4}
+                        name={"Video"}
+                      />
+                      <SectionButton
+                        bigChartData={bigChartData}
+                        setBgChartData={setBgChartData}
+                        data={"data5"}
+                        id={"5"}
+                        index={5}
+                        name={"Photos"} />
+                      <SectionButton
+                        bigChartData={bigChartData}
+                        setBgChartData={setBgChartData}
+                        data={"data6"}
+                        id={"6"}
+                        index={6}
+                        name={"Tools"} />
                     </ButtonGroup>
                   </Col>
                 </Row>
