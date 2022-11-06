@@ -14,3 +14,5 @@ front/CHANGELOG.md
 front/main
 database.db
 database.db
+node_modules*
+database.db

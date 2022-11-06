@@ -121,6 +121,8 @@ func removeDuplicatesAppsOnDB(apps [][]string) [][]string {
 	return notRepeated
 }
 
+var appNames [][]string
+
 func deviceApps(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -178,54 +180,43 @@ func deviceApps(w http.ResponseWriter, r *http.Request) {
 
 	// get specific size types
 	appSizes := getSpecificSize("App Sizes:", splitted_diskstats_out, indexes)
-	appDataSizes := getSpecificSize("App Data Sizes:", splitted_diskstats_out, indexes)
-	appCacheSizes := getSpecificSize("Cache Sizes:", splitted_diskstats_out, indexes)
+	dataSizes := getSpecificSize("App Data Sizes:", splitted_diskstats_out, indexes)
+	cacheSizes := getSpecificSize("Cache Sizes:", splitted_diskstats_out, indexes)
 
-	for i, _ := range third_party_apps {
-		cmd = exec.Command("adb", "-s", serial_id, "shell", "pm", "path", third_party_apps[i])
-		stdout, _ = cmd.Output()
+	to_process = [][]string{}
 
-		out = strings.ReplaceAll(string(stdout), "\r", "")
-		out = strings.Split(out, "\n")[0][8:]
-
-		cmd = exec.Command("adb", "-s", serial_id, "shell", "/data/local/tmp/aapt-arm-pie", "d", "badging", out)
-		stdout, _ = cmd.Output()
-
-		version := ""
-		name := ""
-
-		replacer := strings.NewReplacer(
-			"application-label:'", "",
-			"\n", "",
-			"\r", "",
-			"'", "",
+	b := make(chan bool, len(to_process))
+	for i, app := range third_party_apps {
+		to_process = append(to_process, []string{""})
+		go processThirdPartyApps(
+			i,
+			app,
+			serial_id,
+			appSizes[third_party_apps[i]],
+			dataSizes[third_party_apps[i]],
+			cacheSizes[third_party_apps[i]],
+			b,
 		)
+	}
 
-		for _, l := range strings.Split(string(stdout), "\n") {
-			if strings.Contains(l, "application-label:") {
-				name = replacer.Replace(l)
-				break
-			} else if strings.Contains(l, "versionName=") {
-				index_start := strings.Index(l, "versionName='") + len("versionName='")
-				index_end := strings.Index(l[index_start:], "'")
-				version = l[index_start : index_start+index_end]
+	for {
+		counter := 0
+
+		for _, proc := range to_process {
+			if proc[0] != "" {
+				counter += 1
 			}
 		}
 
-		app_name := third_party_apps[i]
-
-		if name != "" {
-			app_name = name
+		if counter == len(to_process) {
+			break
 		}
 
-		appNames = append(appNames, []string{
-			third_party_apps[i],
-			app_name,
-			appSizes[third_party_apps[i]],
-			appDataSizes[third_party_apps[i]],
-			appCacheSizes[third_party_apps[i]],
-			version,
-		})
+		time.Sleep(time.Millisecond * 500)
+	}
+
+	for _, proc := range to_process {
+		appNames = append(appNames, proc[1:])
 	}
 
 	if len(third_party_apps) != 0 {
@@ -241,6 +232,56 @@ func deviceApps(w http.ResponseWriter, r *http.Request) {
 	})
 
 	json.NewEncoder(w).Encode(appNames)
+}
+
+func processThirdPartyApps(i int, app string, serial_id string, app_size string, data_size string, cache_size string, b chan bool) {
+	cmd := exec.Command("adb", "-s", serial_id, "shell", "pm", "path", app)
+	stdout, _ := cmd.Output()
+
+	out := strings.ReplaceAll(string(stdout), "\r", "")
+	out = strings.Split(out, "\n")[0][8:]
+
+	cmd = exec.Command("adb", "-s", serial_id, "shell", "/data/local/tmp/aapt-arm-pie", "d", "badging", out)
+	stdout, _ = cmd.Output()
+
+	version := ""
+	name := ""
+
+	replacer := strings.NewReplacer(
+		"application-label:'", "",
+		"\n", "",
+		"\r", "",
+		"'", "",
+	)
+
+	for _, l := range strings.Split(string(stdout), "\n") {
+		if strings.Contains(l, "application-label:") {
+			name = replacer.Replace(l)
+			break
+		} else if strings.Contains(l, "versionName=") {
+			index_start := strings.Index(l, "versionName='") + len("versionName='")
+			index_end := strings.Index(l[index_start:], "'")
+			version = l[index_start : index_start+index_end]
+		}
+	}
+
+	app_name := app
+
+	if name != "" {
+		app_name = name
+	}
+
+	to_process[i][0] = "end"
+	to_process[i] = append(to_process[i], []string{
+		app,
+		app_name,
+		app_size,
+		data_size,
+		cache_size,
+		version,
+	}...)
+
+	b <- true
 }
 
 func checkAppsExist(third_party_apps []string, appsOnDB [][]string, serial string) ([]string, [][]string) {

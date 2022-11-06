@@ -42,6 +42,7 @@ export default function MyPhoneApps(props) {
     setTotalPages(Math.ceil(apps.length / pagination))
 
     var index = currentPage * pagination
+
     var appsComponent = apps.slice(index, index + pagination).map((app) => {
       var app_id = app[0]
       var name = app[1]
@@ -53,15 +54,15 @@ export default function MyPhoneApps(props) {
       return <tr key={app_id}>
         <td>
           <Col>
-            <p style={{ fontSize: "18px" }}>{name}</p>
+            <p style={{ fontSize: "16px" }}>{name}</p>
             <p style={{ fontSize: "10px", color: '#9494A3' }}>{app_id}</p>
           </Col>
         </td>
         <td className="text-center" style={{ width: '200px' }} >
           <Col>
-            <p style={{ fontSize: "12px" }}>App: {formatBytes(size)}</p>
-            <p style={{ fontSize: "12px" }}>Data: {formatBytes(data_size)}</p>
-            <p style={{ fontSize: "12px" }}>Cache: {formatBytes(cache)}</p>
+            <p style={{ fontSize: "10px" }}>App: {formatBytes(size)}</p>
+            <p style={{ fontSize: "10px" }}>Data: {formatBytes(data_size)}</p>
+            <p style={{ fontSize: "10px" }}>Cache: {formatBytes(cache)}</p>
           </Col>
         </td>
         <td alt={version} style={{ width: '100px' }} >{trunc(version)}</td>

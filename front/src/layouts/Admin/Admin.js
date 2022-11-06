@@ -121,6 +121,15 @@ function Admin(props) {
             layout: "/admin"
           }
 
+          routes[1] = {
+            path: "/icons",
+            name: "Icons",
+            rtlName: "الرموز",
+            icon: "tim-icons icon-atom",
+            component: Icons,
+            layout: "/admin"
+          }
+
           for (var r in result){
             var device = result[r]['id']
             routes[routes.length] = {

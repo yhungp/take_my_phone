@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 
 import {
@@ -10,13 +11,18 @@ import {
 } from "reactstrap";
 
 import MyPhoneInformation from 'components/Device/MyPhoneInformation';
+import MyPhoneFilesManager from 'components/Device/MyPhoneFilesManager';
 import MyPhoneApps from 'components/Device/MyPhoneApps';
 import SectionButton from 'components/Device/SectionsButtons'
 import {
   getRamInfo,
   getStorage,
   getAppsCount
-} from 'components/Device/ApiCalls'
+} from 'components/Device/InformationApiCalls'
+
+import {
+  callForFiles
+} from 'components/Device/FilesApiCalls'
 
 function Devices(props) {
   const [bigChartData, setbigChartData] = React.useState("data0");
@@ -31,12 +37,15 @@ function Devices(props) {
     setDeviceName(props['match']['path'].replace("/admin/", "Device "))
   }, [bigChartData])
 
-  var [storageStarted, setStorageStarted] = useState(true)
-  var [storagesDescription, setStoragesDescription] = useState(null)
-  var [storagesValues, setStoragesValues] = useState(null)
-  var [storageTotal, setStoragesTotal] = useState(null)
-  var [mobileInformation, setMobileInformation] = useState({})
-  var [currentInfo, setCurrentInfo] = useState(0)
+  const [storageStarted, setStorageStarted] = useState(true)
+  const [storagesDescription, setStoragesDescription] = useState(null)
+  const [storagesValues, setStoragesValues] = useState(null)
+  const [storageTotal, setStoragesTotal] = useState(null)
+  const [mobileInformation, setMobileInformation] = useState({})
+  const [currentInfo, setCurrentInfo] = useState(0)
+
+  const [path, setPath] = useState("/")
+  const [listFiles, setListFiles] = useState(null)
 
   var deviceSerial = props['match']['path'].replace("/admin/", "")
 
@@ -105,6 +114,25 @@ function Devices(props) {
           return phoneApps
         }
 
+      case 2:
+        var files = <MyPhoneFilesManager
+          formatBytes={formatBytes}
+          deviceName={props['match']['path'].replace("/admin/", "")}
+          files={listFiles}
+          updateFiles={updateFiles}
+          globalPagination={globalPagination}
+          setGlobalPagination={setGlobalPagination}
+          path={path}
+        />
+
+        if (listFiles == null) {
+          callForFiles(setListFiles, props['match']['path'].replace("/admin/", ""), path)
+          return null
+        }
+        else {
+          return files
+        }
+
       default:
         return <MyPhoneInformation
           storagesDescription={storagesDescription}
@@ -143,6 +171,33 @@ function Devices(props) {
   const updateApps = () => {
     callForApps()
   }
+
+  function getAllIndexes(arr, val) {
+		var indexes = [], i = -1;
+		while ((i = arr.indexOf(val, i+1)) !== -1){
+			indexes.push(i);
+		}
+		return indexes;
+	}
+
+  function updateFiles(name) {
+    if (path !== "/" && name !== "..") {
+      setPath(path + name + '/')
+    }
+    else if (path !== "/" && name === ".."){
+      var indexes = getAllIndexes(path, "/")
+      setPath(path.substring(0, indexes[indexes.length - 2] + 1))
+    }
+    else {
+      setPath(path + name + '/')
+    }
+  }
+
+  useEffect(() => {
+    if (currentInfo === 2) {
+      callForFiles(setListFiles, props['match']['path'].replace("/admin/", ""), path)
+    }
+  }, [path])
 
   return (
     <>
