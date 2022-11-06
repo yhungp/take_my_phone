@@ -36,12 +36,15 @@ func setHeaders(h http.Handler) http.Handler {
 var router = mux.NewRouter().StrictSlash(true)
 
 func InitializeRoutes() {
+	router.HandleFunc("/add-device/", addedDevices).Methods("POST")
 	router.HandleFunc("/devices", adbList)
 	router.HandleFunc("/device-apps/{id}", deviceApps)
 	router.HandleFunc("/device-info/{id}", getDeviceInformation)
 	router.HandleFunc("/device-space/{id}", deviceStorage)
-	router.HandleFunc("/list-files/", listFiles).Methods("POST")
-	router.HandleFunc("/add-device/", addedDevices).Methods("POST")
-	router.HandleFunc("/list-added-devices/", listAddedDevices)
 	router.HandleFunc("/device-ram/{id}/", getDeviceRAM)
+	router.HandleFunc("/list-added-devices/", listAddedDevices)
+	router.HandleFunc("/list-files/", listFiles).Methods("POST")
+	router.HandleFunc("/list-musics/{id}", listMusic)
+	router.HandleFunc("/list-videos/{id}", listVideo)
+	router.HandleFunc("/list-photos/{id}", listPhotos)
 }

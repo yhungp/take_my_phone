@@ -77,7 +77,7 @@ func createTable(db *sql.DB, table_name string, parameters string) {
 			log.Fatal(err)
 		}
 		query.Exec()
-		fmt.Println("Table created successfully!")
+		fmt.Printf("%s table created successfully!\n", table_name)
 	}
 }
 
@@ -141,7 +141,6 @@ func getDeviceIndex(db *sql.DB, serial string) int {
 	return -1
 }
 
-// func addApps(db *sql.DB, apps string, names string, app_sizes string, data_sizes string, cache_sizes string, versions string, serial string) {
 func addApps(db *sql.DB, appNames [][]string, serial string) bool {
 	query := fmt.Sprintf("SELECT * FROM apps where serial = \"%s\"", serial)
 	record, err := db.Query(query)
@@ -181,17 +180,17 @@ func addApps(db *sql.DB, appNames [][]string, serial string) bool {
 		}
 	}
 
-	var errors []string
+	// var errors []string
 	for _, app := range appNames {
 		records := `INSERT INTO apps (app, name, app_size, data_size, cache_size, version, serial) VALUES (?, ?, ?, ?, ?, ?, ?)`
 		query, err := db.Prepare(records)
 		if err != nil {
-			errors = append(errors, app[0])
+			// errors = append(errors, app[0])
 			continue
 		}
 		_, err = query.Exec(app[0], app[1], app[2], app[3], app[4], app[5], serial)
 		if err != nil {
-			errors = append(errors, app[0])
+			// errors = append(errors, app[0])
 			continue
 		}
 
