@@ -117,7 +117,7 @@ export default function MyPhoneApps(props) {
               <CardHeader>
                 <CardTitle>
                   <Row style={{ alignItems: "center" }}>
-                    <h4 style={{ marginLeft: '20px' }}>Simple Table</h4>
+                    <h4 style={{ marginLeft: '20px' }}>Phone apps</h4>
                     <Col style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-end', flex: 1 }}>
                       <Button onClick={() => changePagination(10)} className={classNames("btn-simple")} style={{ width: '80px' }}>10</Button>
                       <Button onClick={() => changePagination(20)} className={classNames("btn-simple")} style={{ width: '80px' }}>20</Button>

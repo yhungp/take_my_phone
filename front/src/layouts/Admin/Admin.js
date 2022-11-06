@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /*!
 
 =========================================================
@@ -107,25 +108,19 @@ function Admin(props) {
           // setCount((count) => 0)
         }
         else {
-          routes =[
-            {
-              path: "/dashboard",
-              name: "Dashboard",
-              rtlName: "لوحة القيادة",
-              icon: "tim-icons icon-chart-pie-36",
-              component: Dashboard,
-              layout: "/admin"
-            },
-            {
-              path: "/icons",
-              name: "Icons",
-              rtlName: "الرموز",
-              icon: "tim-icons icon-atom",
-              component: Icons,
-              layout: "/admin"
-            },
-          ]
-          
+          for (var i = 0; i < routes.length; i ++){
+            routes.pop(i)
+          }
+
+          routes[0] = {
+            path: "/dashboard",
+            name: "Dashboard",
+            rtlName: "لوحة القيادة",
+            icon: "tim-icons icon-chart-pie-36",
+            component: Dashboard,
+            layout: "/admin"
+          }
+
           for (var r in result){
             var device = result[r]['id']
             routes[routes.length] = {
@@ -136,9 +131,11 @@ function Admin(props) {
               component: Devices,
               layout: "/admin"
             }
-
-            refrechRoutes(routes)
           }
+
+          console.log(routes)
+
+          refrechRoutes(routes)
           setStart(false)
         }
       },
@@ -153,7 +150,7 @@ function Admin(props) {
     setSwitchRoutes(
       <Switch>
         {getRoutes(myRoutes)}
-        <Redirect from="*" to="/admin/dashboard" />
+        {/* <Redirect from="*" to="/admin/dashboard" /> */}
       </Switch>
     )
   }

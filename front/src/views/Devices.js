@@ -1,35 +1,9 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/*!
-
-=========================================================
-* Black Dashboard React v1.2.1
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/black-dashboard-react
-* Copyright 2022 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React, { useEffect, useState } from "react";
-// nodejs library that concatenates classes
-import classNames from "classnames";
-// react plugin used to create charts
 
-import { PieChart } from 'react-minimal-pie-chart';
-
-// reactstrap components
 import {
-  Button,
   ButtonGroup,
   Card,
   CardHeader,
-  CardBody,
   CardTitle,
   Row,
   Col,
@@ -44,7 +18,7 @@ import {
   getAppsCount
 } from 'components/Device/ApiCalls'
 
-function Dashboard(props) {
+function Devices(props) {
   const [bigChartData, setbigChartData] = React.useState("data0");
   const setBgChartData = (name, index) => {
     setbigChartData(name);
@@ -112,6 +86,7 @@ function Dashboard(props) {
           mobileInformation={mobileInformation}
           ramValue={ramValue}
         />
+
       case 1:
         var phoneApps = <MyPhoneApps
           formatBytes={formatBytes}
@@ -256,4 +231,4 @@ function Dashboard(props) {
   );
 }
 
-export default Dashboard;
+export default Devices;

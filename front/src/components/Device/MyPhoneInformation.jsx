@@ -1,16 +1,12 @@
 
-import React, { useEffect, useState } from "react";
+import React, {  } from "react";
 // nodejs library that concatenates classes
-import classNames from "classnames";
 // react plugin used to create charts
-import { Line, Bar } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 
-import { PieChart } from 'react-minimal-pie-chart';
 
 // reactstrap components
 import {
-  Button,
-  ButtonGroup,
   Card,
   CardHeader,
   CardBody,
@@ -89,7 +85,7 @@ export default function MyPhoneInformation(props) {
       </Row>
 
       <Row>
-        <Col lg="2" />
+        {/* <Col lg="2" /> */}
         <Col lg="4">
           <Card className="card-chart">
             <CardHeader>
@@ -102,20 +98,6 @@ export default function MyPhoneInformation(props) {
                   <p style={{ fontSize: '20px' }}>{"  "}{mobileInformation['model']}</p>
                   <p>{"  "}{mobileInformation['brand']}</p>
                   <p>{"  "}{mobileInformation['device']}</p>
-                </Col>
-              </CardBody>
-            </CardHeader>
-          </Card>
-        </Col>
-        <Col lg="4">
-          <Card className="card-chart">
-            <CardHeader>
-              <Row style={{ marginLeft: '0px' }}>
-                <i style={{ marginRight: '10px' }} className="tim-icons icon-settings-gear-63 text-info" />
-                <p className="card-category">Other information</p>
-              </Row>
-              <CardBody>
-                <Col>
                   <p>{"  Android version: "}{mobileInformation['android']}</p>
                   <p>{"  Board:  "}{mobileInformation['board']}</p>
                   <p>{"  App count:  "}{mobileInformation['app_count']}</p>
@@ -124,7 +106,6 @@ export default function MyPhoneInformation(props) {
             </CardHeader>
           </Card>
         </Col>
-        <Col lg="2" />
       </Row>
     </>
   )

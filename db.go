@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -37,14 +38,15 @@ func startDatabase() {
 		{
 			"apps",
 			`"id"	INTEGER NOT NULL UNIQUE,
-			"apps"	TEXT NOT NULL,
-			"names"	TEXT NOT NULL,
-			"app_sizes"	TEXT NOT NULL,
-			"data_sizes"	TEXT NOT NULL,
-			"cache_sizes"	TEXT NOT NULL,
-			"versions"	TEXT NOT NULL,
+			"app"	TEXT NOT NULL,
+			"name"	TEXT NOT NULL,
+			"app_size"	TEXT NOT NULL,
+			"data_size"	TEXT NOT NULL,
+			"cache_size"	TEXT NOT NULL,
+			"version"	TEXT NOT NULL,
+			"serial"	TEXT NOT NULL,
 			PRIMARY KEY("id" AUTOINCREMENT),
-			FOREIGN KEY("id") REFERENCES "devices"("id")
+			FOREIGN KEY ("serial") REFERENCES "devices" ("serial")
 			ON DELETE SET NULL`,
 		},
 	}
@@ -116,4 +118,155 @@ func listDBdevices(db *sql.DB) [][]string {
 	}
 
 	return devices
+}
+
+func getDeviceIndex(db *sql.DB, serial string) int {
+	query := fmt.Sprintf("SELECT * FROM devices where serial = \"%s\"", serial)
+	record, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer record.Close()
+
+	for record.Next() {
+		var id int
+		var serial string
+		var brand string
+		var device string
+		var model string
+		record.Scan(&id, &serial, &brand, &device, &model)
+		return id
+	}
+
+	return -1
+}
+
+// func addApps(db *sql.DB, apps string, names string, app_sizes string, data_sizes string, cache_sizes string, versions string, serial string) {
+func addApps(db *sql.DB, appNames [][]string, serial string) bool {
+	query := fmt.Sprintf("SELECT * FROM apps where serial = \"%s\"", serial)
+	record, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer record.Close()
+
+	var ids []int
+
+	for record.Next() {
+		var ser string
+		var id int
+		var apps string
+		var names string
+		var app_sizes string
+		var data_sizes string
+		var cache_sizes string
+		var versions string
+		record.Scan(&id, &apps, &names, &app_sizes, &data_sizes, &cache_sizes, &versions, &ser)
+		ids = append(ids, id)
+	}
+
+	if len(ids) > 0 {
+		for _, id := range ids {
+			records := fmt.Sprintf(`DELETE FROM apps where id=%d`, id)
+			query, err := db.Prepare(records)
+			if err != nil {
+				continue
+			}
+			_, err = query.Exec()
+			if err != nil {
+				continue
+			}
+
+			query.Close()
+		}
+	}
+
+	var errors []string
+	for _, app := range appNames {
+		records := `INSERT INTO apps (app, name, app_size, data_size, cache_size, version, serial) VALUES (?, ?, ?, ?, ?, ?, ?)`
+		query, err := db.Prepare(records)
+		if err != nil {
+			errors = append(errors, app[0])
+			continue
+		}
+		_, err = query.Exec(app[0], app[1], app[2], app[3], app[4], app[5], serial)
+		if err != nil {
+			errors = append(errors, app[0])
+			continue
+		}
+
+		query.Close()
+	}
+
+	defer record.Close()
+	return true
+}
+
+func listAppsByDevice(db *sql.DB, serial string) [][]string {
+	query := fmt.Sprintf("SELECT * FROM devices where Serial = \"%s\"", serial)
+	record, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer record.Close()
+
+	var devices [][]string
+
+	for record.Next() {
+		var id int
+		var serial string
+		var brand string
+		var device string
+		var model string
+		record.Scan(&id, &serial, &brand, &device, &model)
+		devices = append(devices, []string{
+			fmt.Sprintf("%d", id),
+			serial,
+			brand,
+			device,
+			model,
+		})
+	}
+
+	list_apps := [][]string{
+		{},
+		{},
+		{},
+		{},
+		{},
+		{},
+	}
+
+	if len(devices) != 0 {
+		dev := devices[0]
+		id, _ := strconv.Atoi(dev[0])
+
+		query = fmt.Sprintf("SELECT * FROM apps where serial = %d", id)
+		record, err := db.Query(query)
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer record.Close()
+
+		for record.Next() {
+			var id int
+			var app string
+			var name string
+			var app_size string
+			var data_size string
+			var cache_size string
+			var version string
+			var ser string
+			record.Scan(&id, &app, &name, &app_size, &data_size, &cache_size, &version, &ser)
+
+			list_apps[0] = append(list_apps[0], app)
+			list_apps[1] = append(list_apps[1], name)
+			list_apps[2] = append(list_apps[2], app_size)
+			list_apps[3] = append(list_apps[3], data_size)
+			list_apps[4] = append(list_apps[4], cache_size)
+			list_apps[5] = append(list_apps[5], version)
+		}
+	}
+
+	return list_apps
 }
