@@ -73,6 +73,7 @@ type Messages struct {
 	Phone    string   `json:"phone"`
 	Messages []string `json:"messages"`
 	Date     []string `json:"date"`
+	Inbox    []bool   `json:"inbox"`
 }
 
 func listMessages(w http.ResponseWriter, r *http.Request) {
@@ -89,10 +90,30 @@ func listMessages(w http.ResponseWriter, r *http.Request) {
 	lines := strings.Split(strings.ReplaceAll(string(stdout), "\r", ""), "\n")[1:]
 	lines = delete_empty(lines)
 
-	var messages []Messages
+	savedLines := joinLines(lines)
+	inboxMessages := getMessages(savedLines, true)
 
+	command = fmt.Sprintf("-s %s shell content query --uri content://sms/sent --projection address:body:date", id[len(id)-1])
+	cmd = exec.Command("adb", strings.Fields(command)...)
+	stdout, _ = cmd.Output()
+
+	lines = strings.Split(strings.ReplaceAll(string(stdout), "\r", ""), "\n")[1:]
+	lines = delete_empty(lines)
+
+	savedLines = joinLines(lines)
+
+	sentMessages := getMessages(savedLines, false)
+
+	fullMessages := inboxMessages
+	fullMessages = append(fullMessages, sentMessages...)
+
+	joined := joinMessages(fullMessages)
+
+	json.NewEncoder(w).Encode(joined)
+}
+
+func joinLines(lines []string) []string {
 	var savedLines []string
-
 	newLine := ""
 	new := true
 	for _, l := range lines {
@@ -112,6 +133,11 @@ func listMessages(w http.ResponseWriter, r *http.Request) {
 		newLine += l
 	}
 
+	return savedLines
+}
+
+func getMessages(savedLines []string, inbox bool) []Messages {
+	var messages []Messages
 	for _, l := range savedLines {
 		l = strings.Join(strings.Fields(l)[2:], " ")
 
@@ -127,13 +153,15 @@ func listMessages(w http.ResponseWriter, r *http.Request) {
 			Date: []string{
 				l[date+7:],
 			},
-			// l[address:body],
-			// l[body+7:],
+			Inbox: []bool{inbox},
 		})
 	}
 
-	var joined []Messages
+	return messages
+}
 
+func joinMessages(messages []Messages) []Messages {
+	var joined []Messages
 	for _, message := range messages {
 		flag := false
 		count := 0
@@ -148,6 +176,7 @@ func listMessages(w http.ResponseWriter, r *http.Request) {
 		if flag {
 			joined[count].Messages = append(joined[count].Messages, message.Messages...)
 			joined[count].Date = append(joined[count].Date, message.Date...)
+			joined[count].Inbox = append(joined[count].Inbox, message.Inbox...)
 			continue
 		}
 		joined = append(joined, message)
@@ -160,5 +189,54 @@ func listMessages(w http.ResponseWriter, r *http.Request) {
 		return name1 < name2
 	})
 
-	json.NewEncoder(w).Encode(joined)
+	for i, m := range joined {
+		if len(m.Messages) == 1 {
+			continue
+		}
+
+		messages := m.Messages
+		inbox := m.Inbox
+		dates := m.Date
+
+		var messagesAndInbox []messageInbox
+
+		for i, mm := range messages {
+			messagesAndInbox = append(messagesAndInbox, messageInbox{
+				message: mm,
+				inbox:   inbox[i],
+				date:    dates[i],
+			})
+		}
+
+		sort.Slice(messagesAndInbox, func(i, j int) bool {
+			name1 := messagesAndInbox[i].date
+			name2 := messagesAndInbox[j].date
+
+			return name1 < name2
+		})
+
+		m.Messages = []string{}
+		m.Date = []string{}
+		m.Inbox = []bool{}
+
+		for _, mm := range messagesAndInbox {
+			m.Messages = append(m.Messages, mm.message)
+			m.Inbox = append(m.Inbox, mm.inbox)
+			m.Date = append(m.Date, mm.date)
+		}
+
+		joined[i].Messages = m.Messages
+		joined[i].Inbox = m.Inbox
+		joined[i].Date = m.Date
+
+		fmt.Println()
+	}
+
+	return joined
+}
+
+type messageInbox struct {
+	message string
+	inbox   bool
+	date    string
 }
