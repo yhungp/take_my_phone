@@ -132,6 +132,8 @@ func deviceApps(w http.ResponseWriter, r *http.Request) {
 	appsOnDB := listAppsByDevice(database, serial_id)
 	appsOnDB = removeDuplicatesAppsOnDB(appsOnDB)
 
+	// adb shell stat -c '%a' /data/local/tmp/aapt-arm-pie
+
 	// Copy aapt-arm-pie to phone
 	copy_cmd := fmt.Sprintf("-s %s push F:/Proyectos/Go/take_my_phone/files/aapt-arm-pie /data/local/tmp", serial_id)
 	cmd := exec.Command("adb", strings.Fields(copy_cmd)...)

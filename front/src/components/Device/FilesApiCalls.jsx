@@ -38,3 +38,63 @@ export async function callForFiles(setListFiles, dev, path) {
 
     setListFiles([...folders, ...files])
 }
+
+export function callForPhotos(setFunction, dev) {
+    fetch("http://localhost:8080/list-photos/" + dev)
+    .then(res => res.json())
+    .then(
+      (result) => {
+        if (result == null) {
+          // setCount((count) => 0)
+        }
+        else {
+          if (result !== "device offline") {
+            setFunction(result)
+          }
+        }
+      },
+      (error) => {
+        // setCount((i) => 0)
+      }
+    )
+}
+
+export function callForMusic(setFunction, dev) {
+    fetch("http://localhost:8080/list-musics/" + dev)
+    .then(res => res.json())
+    .then(
+      (result) => {
+        if (result == null) {
+          // setCount((count) => 0)
+        }
+        else {
+          if (result !== "device offline") {
+            setFunction(result)
+          }
+        }
+      },
+      (error) => {
+        // setCount((i) => 0)
+      }
+    )
+}
+
+export function callForVideos(setFunction, dev) {
+    fetch("http://localhost:8080/list-videos/" + dev)
+    .then(res => res.json())
+    .then(
+      (result) => {
+        if (result == null) {
+          // setCount((count) => 0)
+        }
+        else {
+          if (result !== "device offline") {
+            setFunction(result)
+          }
+        }
+      },
+      (error) => {
+        // setCount((i) => 0)
+      }
+    )
+}

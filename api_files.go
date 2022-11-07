@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os/exec"
 	"strings"
@@ -84,7 +85,7 @@ func listMusic(w http.ResponseWriter, r *http.Request) {
 
 	id := strings.Fields(mux.Vars(r)["id"])
 
-	cmd := exec.Command("adb", "-s", id[len(id)-1], "shell", "find", "/storage/emulated/0/")
+	cmd := exec.Command("adb", "-s", id[len(id)-1], "shell", "du", "-ah", "/storage/emulated/0/")
 	stdout, _ := cmd.Output()
 
 	lines := strings.Split(string(stdout), "\n")[1:]
@@ -100,7 +101,7 @@ func listMusic(w http.ResponseWriter, r *http.Request) {
 		".vox", ".wav", ".wma", ".wv", ".webm", ".8svx",
 		".cda"}
 
-	var musicFiles []string
+	var musicFiles []PhoneFileFolder
 
 	for _, l := range lines[1:] {
 		l = strings.ReplaceAll(l, "\r", "")
@@ -108,11 +109,18 @@ func listMusic(w http.ResponseWriter, r *http.Request) {
 
 		for _, format := range formats {
 			if format == "."+splitted[len(splitted)-1] {
-				musicFiles = append(musicFiles, l)
+				fields := strings.Fields(l)
+				musicFiles = append(musicFiles, PhoneFileFolder{
+					Type: 1,
+					Path: strings.Join(fields[1:], " "),
+					Size: fields[0] + "B",
+				})
 				break
 			}
 		}
 	}
+
+	log.Println("Music listed")
 
 	json.NewEncoder(w).Encode(musicFiles)
 }
@@ -124,7 +132,7 @@ func listVideo(w http.ResponseWriter, r *http.Request) {
 
 	id := strings.Fields(mux.Vars(r)["id"])
 
-	cmd := exec.Command("adb", "-s", id[len(id)-1], "shell", "find", "/storage/emulated/0/")
+	cmd := exec.Command("adb", "-s", id[len(id)-1], "shell", "du", "-ah", "/storage/emulated/0/")
 	stdout, _ := cmd.Output()
 
 	lines := strings.Split(string(stdout), "\n")[1:]
@@ -141,7 +149,7 @@ func listVideo(w http.ResponseWriter, r *http.Request) {
 		".f4v", ".f4p", ".f4a", ".f4b",
 	}
 
-	var videoFiles []string
+	var videoFiles []PhoneFileFolder
 
 	for _, l := range lines[1:] {
 		l = strings.ReplaceAll(l, "\r", "")
@@ -149,11 +157,18 @@ func listVideo(w http.ResponseWriter, r *http.Request) {
 
 		for _, format := range formats {
 			if format == "."+splitted[len(splitted)-1] {
-				videoFiles = append(videoFiles, l)
+				fields := strings.Fields(l)
+				videoFiles = append(videoFiles, PhoneFileFolder{
+					Type: 1,
+					Path: strings.Join(fields[1:], " "),
+					Size: fields[0] + "B",
+				})
 				break
 			}
 		}
 	}
+
+	log.Println("Videos listed")
 
 	json.NewEncoder(w).Encode(videoFiles)
 }
@@ -165,7 +180,7 @@ func listPhotos(w http.ResponseWriter, r *http.Request) {
 
 	id := strings.Fields(mux.Vars(r)["id"])
 
-	cmd := exec.Command("adb", "-s", id[len(id)-1], "shell", "find", "/storage/emulated/0/")
+	cmd := exec.Command("adb", "-s", id[len(id)-1], "shell", "du", "-ah", "/storage/emulated/0/")
 	stdout, _ := cmd.Output()
 
 	lines := strings.Split(string(stdout), "\n")[1:]
@@ -180,7 +195,7 @@ func listPhotos(w http.ResponseWriter, r *http.Request) {
 		".svg", ".svgz", ".ai", ".eps",
 	}
 
-	var photoFiles []string
+	var photoFiles []PhoneFileFolder
 
 	for _, l := range lines[1:] {
 		l = strings.ReplaceAll(l, "\r", "")
@@ -188,11 +203,18 @@ func listPhotos(w http.ResponseWriter, r *http.Request) {
 
 		for _, format := range formats {
 			if format == "."+splitted[len(splitted)-1] {
-				photoFiles = append(photoFiles, l)
+				fields := strings.Fields(l)
+				photoFiles = append(photoFiles, PhoneFileFolder{
+					Type: 1,
+					Path: strings.Join(fields[1:], " "),
+					Size: fields[0] + "B",
+				})
 				break
 			}
 		}
 	}
+
+	log.Println("Photos listed")
 
 	json.NewEncoder(w).Encode(photoFiles)
 }

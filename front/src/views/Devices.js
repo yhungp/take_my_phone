@@ -12,6 +12,11 @@ import {
 
 import MyPhoneInformation from 'components/Device/MyPhoneInformation';
 import MyPhoneFilesManager from 'components/Device/MyPhoneFilesManager';
+
+import MusicManager from 'components/Device/MusicManager';
+import PhotosManager from 'components/Device/PhotosManager';
+import VideoManager from 'components/Device/VideoManager';
+
 import MyPhoneApps from 'components/Device/MyPhoneApps';
 import SectionButton from 'components/Device/SectionsButtons'
 import {
@@ -21,14 +26,21 @@ import {
 } from 'components/Device/InformationApiCalls'
 
 import {
-  callForFiles
+  callForFiles,
+  callForMusic,
+  callForVideos,
+  callForPhotos,
 } from 'components/Device/FilesApiCalls'
 
 function Devices(props) {
   const [bigChartData, setbigChartData] = React.useState("data0");
+
   const setBgChartData = (name, index) => {
     setbigChartData(name);
-    setCurrentInfo(index);
+
+    if (index !== currentInfo) {
+      setCurrentInfo(index);
+    }
   };
 
   const [deviceName, setDeviceName] = useState("Device")
@@ -46,10 +58,15 @@ function Devices(props) {
 
   const [path, setPath] = useState("/")
   const [listFiles, setListFiles] = useState(null)
+  const [listMusics, setListMusics] = useState(null)
+  const [listVideos, setListVideos] = useState(null)
+  const [listPhotos, setListPhotos] = useState(null)
 
   var deviceSerial = props['match']['path'].replace("/admin/", "")
 
   useEffect(() => {
+    getSize()
+
     if (storageStarted) {
       getStorage(
         deviceSerial,
@@ -133,6 +150,75 @@ function Devices(props) {
           return files
         }
 
+      case 3:
+        var music = <MusicManager
+          formatBytes={formatBytes}
+          deviceName={props['match']['path'].replace("/admin/", "")}
+          files={listMusics}
+          updateMusic={() => updateMusics()}
+          globalPagination={50}
+          setGlobalPagination={setGlobalPagination}
+          path={path}
+        />
+
+        if (listMusics !== null) {
+          return music
+        }
+
+        callForMusic(
+          setListMusics,
+          props['match']['path'].replace("/admin/", ""))
+
+        return <div style={{ alignItems: "center", display: 'flex', justifyContent: 'center', flex: 1, height: getSize() }}>
+          <p style={{ fontSize: "30px" }}>Loading music...</p>
+        </div>
+
+      case 4:
+        var videos = <VideoManager
+          formatBytes={formatBytes}
+          deviceName={props['match']['path'].replace("/admin/", "")}
+          files={listVideos}
+          updateMusic={() => updateVideos()}
+          globalPagination={50}
+          setGlobalPagination={setGlobalPagination}
+          path={path}
+        />
+
+        if (listVideos !== null) {
+          return videos
+        }
+
+        callForVideos(
+          setListVideos,
+          props['match']['path'].replace("/admin/", ""))
+
+        return <div style={{ alignItems: "center", display: 'flex', justifyContent: 'center', flex: 1, height: getSize() }}>
+          <p style={{ fontSize: "30px" }}>Loading videos...</p>
+        </div>
+
+      case 5:
+        var photos = <PhotosManager
+          formatBytes={formatBytes}
+          deviceName={props['match']['path'].replace("/admin/", "")}
+          files={listPhotos}
+          updateMusic={() => updatePhotos()}
+          globalPagination={50}
+          setGlobalPagination={setGlobalPagination}
+          path={path}
+        />
+
+        if (listPhotos !== null) {
+          return photos
+        }
+
+        callForPhotos(
+          setListPhotos,
+          props['match']['path'].replace("/admin/", ""))
+
+        return <div style={{ alignItems: "center", display: 'flex', justifyContent: 'center', flex: 1, height: getSize() }}>
+          <p style={{ fontSize: "30px" }}>Loading photos...</p>
+        </div>
+
       default:
         return <MyPhoneInformation
           storagesDescription={storagesDescription}
@@ -144,6 +230,10 @@ function Devices(props) {
           ramValue={ramValue}
         />
     }
+  }
+
+  const getSize = () => {
+    return window.innerHeight - 227
   }
 
   const [apps, setApps] = useState(null)
@@ -172,19 +262,37 @@ function Devices(props) {
     callForApps()
   }
 
+  const updateMusics = () => {
+    callForMusic(
+      setListMusics,
+      props['match']['path'].replace("/admin/", ""))
+  }
+
+  const updateVideos = () => {
+    callForVideos(
+      setListVideos,
+      props['match']['path'].replace("/admin/", ""))
+  }
+
+  const updatePhotos = () => {
+    callForPhotos(
+      setListPhotos,
+      props['match']['path'].replace("/admin/", ""))
+  }
+
   function getAllIndexes(arr, val) {
-		var indexes = [], i = -1;
-		while ((i = arr.indexOf(val, i+1)) !== -1){
-			indexes.push(i);
-		}
-		return indexes;
-	}
+    var indexes = [], i = -1;
+    while ((i = arr.indexOf(val, i + 1)) !== -1) {
+      indexes.push(i);
+    }
+    return indexes;
+  }
 
   function updateFiles(name) {
     if (path !== "/" && name !== "..") {
       setPath(path + name + '/')
     }
-    else if (path !== "/" && name === ".."){
+    else if (path !== "/" && name === "..") {
       var indexes = getAllIndexes(path, "/")
       setPath(path.substring(0, indexes[indexes.length - 2] + 1))
     }
@@ -221,7 +329,7 @@ function Devices(props) {
                         data={"data0"}
                         id={"0"}
                         index={0}
-                        name={"My phone"}
+                        name={"Phone"}
                       />
                       <SectionButton
                         bigChartData={bigChartData}

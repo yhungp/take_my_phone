@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import classNames from "classnames";
-import { MdFolder, MdViewHeadline, MdViewModule } from "react-icons/md";
+import { MdFolder } from "react-icons/md";
 import { FileIcon, defaultStyles } from 'react-file-icon';
 
 // reactstrap components
@@ -18,7 +18,7 @@ import {
 
 import useWindowSize from 'variables/useWindowSize'
 
-const MusicManager = (props) => {
+const PhotosManager = (props) => {
   const size = useWindowSize();
   var files = props.files;
 
@@ -162,10 +162,6 @@ const MusicManager = (props) => {
     }
   }, [currentPage])
 
-  const setAsFolders = () => {
-    
-  }
-
   return (
     <>
       <div className="content">
@@ -175,26 +171,8 @@ const MusicManager = (props) => {
               <CardHeader>
                 <CardTitle>
                   <Row style={{ alignItems: "center" }}>
-                    <h4 style={{ marginLeft: '20px' }}>Music</h4>
+                    <h4 style={{ marginLeft: '20px' }}>Photos</h4>
                     <Col style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-end', flex: 1 }}>
-                      <Button
-                        onClick={() => setAsFolders()}
-                        className={classNames("btn-simple")}
-                        style={{ alignItems: "center", marginRight: '10px' }}>
-                        <MdFolder size={'15px'}/>
-                      </Button>
-                      <Button
-                        onClick={() => updateMedia()}
-                        className={classNames("btn-simple")}
-                        style={{ alignItems: "center", marginRight: '10px' }}>
-                        <MdViewModule size={'15px'}/>
-                      </Button>
-                      <Button
-                        onClick={() => updateMedia()}
-                        className={classNames("btn-simple")}
-                        style={{ alignItems: "center", marginRight: '10px' }}>
-                        <MdViewHeadline size={'15px'}/>
-                      </Button>
                       <Button
                         onClick={() => updateMedia()}
                         className={classNames("btn-simple")}
@@ -264,4 +242,4 @@ const MusicManager = (props) => {
   )
 }
 
-export default MusicManager;
+export default PhotosManager;
