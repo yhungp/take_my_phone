@@ -10,14 +10,15 @@ import {
   Col,
 } from "reactstrap";
 
-import MyPhoneInformation from 'components/Device/MyPhoneInformation';
-import MyPhoneFilesManager from 'components/Device/MyPhoneFilesManager';
+import MyPhoneInformation from 'components/Device/PhoneInformation';
+import MyPhoneFilesManager from 'components/Device/PhoneFilesManager';
 
 import MusicManager from 'components/Device/MusicManager';
 import PhotosManager from 'components/Device/PhotosManager';
 import VideoManager from 'components/Device/VideoManager';
 
-import MyPhoneApps from 'components/Device/MyPhoneApps';
+import MyPhoneApps from 'components/Device/PhoneApps';
+import Tools from 'components/Device/Tools';
 import SectionButton from 'components/Device/SectionsButtons'
 import {
   getRamInfo,
@@ -218,6 +219,11 @@ function Devices(props) {
         return <div style={{ alignItems: "center", display: 'flex', justifyContent: 'center', flex: 1, height: getSize() }}>
           <p style={{ fontSize: "30px" }}>Loading photos...</p>
         </div>
+
+      case 6:
+        return <Tools
+          devname={props['match']['path'].replace("/admin/", "")}
+        />
 
       default:
         return <MyPhoneInformation

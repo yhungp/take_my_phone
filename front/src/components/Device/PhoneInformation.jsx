@@ -1,5 +1,5 @@
 
-import React, {  } from "react";
+import React, { } from "react";
 // nodejs library that concatenates classes
 // react plugin used to create charts
 import { Bar } from "react-chartjs-2";
@@ -31,7 +31,7 @@ export default function MyPhoneInformation(props) {
   return (
     <>
       <Row>
-        <Col lg="4">
+        <Col lg="3">
           <Card className="card-chart">
             <CardHeader>
               <h5 className="card-category">User storage</h5>
@@ -46,7 +46,7 @@ export default function MyPhoneInformation(props) {
             </CardBody>
           </Card>
         </Col>
-        <Col lg="4">
+        <Col lg="3">
           <Card className="card-chart">
             <CardHeader>
               <h5 className="card-category">Detailed storage</h5>
@@ -67,7 +67,7 @@ export default function MyPhoneInformation(props) {
             </CardBody>
           </Card>
         </Col>
-        <Col lg="4">
+        <Col lg="3">
           <Card className="card-chart">
             <CardHeader>
               <h5 className="card-category">RAM consumption</h5>
@@ -82,11 +82,8 @@ export default function MyPhoneInformation(props) {
             </CardBody>
           </Card>
         </Col>
-      </Row>
 
-      <Row>
-        {/* <Col lg="2" /> */}
-        <Col lg="4">
+        <Col lg="3">
           <Card className="card-chart">
             <CardHeader>
               <Row style={{ marginLeft: '0px' }}>
@@ -95,17 +92,24 @@ export default function MyPhoneInformation(props) {
               </Row>
               <CardBody>
                 <Col>
-                  <p style={{ fontSize: '20px' }}>{"  "}{mobileInformation['model']}</p>
-                  <p>{"  "}{mobileInformation['brand']}</p>
-                  <p>{"  "}{mobileInformation['device']}</p>
-                  <p>{"  Android version: "}{mobileInformation['android']}</p>
-                  <p>{"  Board:  "}{mobileInformation['board']}</p>
-                  <p>{"  App count:  "}{mobileInformation['app_count']}</p>
+                  
+                    <p style={{ fontSize: '20px' }}>{"  "}{mobileInformation['model']}</p>
+                    <p>{"  "}{mobileInformation['brand']}</p>
+                    <p>{"  "}{mobileInformation['device']}</p>
+                    <p>{"  Android version: "}{mobileInformation['android']}</p>
+                    <p>{"  Board:  "}{mobileInformation['board']}</p>
+                    <p>{"  App count:  "}{mobileInformation['app_count']}</p>
+                    <div className="chart-area"style={{ height: '99px' }}></div>
                 </Col>
               </CardBody>
             </CardHeader>
           </Card>
         </Col>
+      </Row>
+
+      <Row>
+        {/* <Col lg="2" /> */}
+
       </Row>
     </>
   )

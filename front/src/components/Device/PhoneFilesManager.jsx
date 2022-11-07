@@ -19,7 +19,6 @@ import {
 export default function MyPhoneFilesManager(props) {
   var formatBytes = props.formatBytes;
   var files = props.files;
-  var path = props.path;
   const updateFiles = props.updateFiles;
   const globalPagination = props.globalPagination;
   const setGlobalPagination = props.setGlobalPagination;
@@ -92,9 +91,7 @@ export default function MyPhoneFilesManager(props) {
                       <p style={{ fontSize: "16px", marginLeft: '20px' }}>{name}</p>
                     </Row>
                   </Col>
-
               }
-              {/* <p style={{ fontSize: "16px" }}>{name}</p> */}
             </Row>
           </Col>
         </td>

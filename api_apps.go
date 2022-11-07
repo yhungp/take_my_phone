@@ -166,7 +166,7 @@ func deviceApps(w http.ResponseWriter, r *http.Request) {
 
 	sort.Strings(third_party_apps)
 
-	appNames := make([][]string, 0, len(third_party_apps))
+	appNames = make([][]string, 0, len(third_party_apps))
 
 	for i, s := range third_party_apps {
 		third_party_apps[i] = s[8:]
