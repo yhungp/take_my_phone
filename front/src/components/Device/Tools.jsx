@@ -14,6 +14,7 @@ import {
   CardTitle,
   Row,
   Col,
+  Button,
 } from "reactstrap";
 
 
@@ -27,10 +28,10 @@ import {
   MessagesChatGenerator
 } from "components/Device/Tools/ToolsMessageGenerator"
 
-import { 
-  callForMessages, 
-  listContacts, 
-  updateContacts 
+import {
+  callForMessages,
+  listContacts,
+  updateContacts
 } from "components/Device/Tools/ToolsApiCalls";
 
 const Tools = (props) => {
@@ -76,7 +77,7 @@ const Tools = (props) => {
   const Messages = () => {
     setTitle("Messages")
     setSelected(1)
-    
+
     if (messages !== null) {
       setComponent(MessagesByContactGenerator(messages, getInsideChat))
     } else {
@@ -97,17 +98,10 @@ const Tools = (props) => {
       for (var i in numbers) {
         var number = numbers[i].replaceAll(" ", "")
 
-        if (number.indexOf("+") === -1)  {
-          
-          number = "+" + number
-
-          console.log(number, phone)
-
-          if (number === phone) {
-            name = contact[0]
-            flag = true
-            break
-          }
+        if (phone.indexOf(number) !== -1) {
+          name = contact[0]
+          flag = true
+          break
         }
       }
 
@@ -116,17 +110,18 @@ const Tools = (props) => {
       }
     }
 
-    console.log(name)
-
     for (var index in messages) {
       var chat = messages[index]
 
       if (chat['phone'] === phone) {
-        setComponent(MessagesChatGenerator(chat))
+        setComponent(MessagesChatGenerator(chat, name))
+        var tag = name !== "" ? name + " (" + phone + ")" : "" + phone
+        setTitle("Chat with " + tag)
+        setSelected(2)
         break
       }
     }
-    // 
+
   }
 
   return (
@@ -159,18 +154,23 @@ const Tools = (props) => {
         <Col lg="9">
           <Card>
             <CardHeader>
-              <CardTitle tag="h4">{title}</CardTitle>
+              <CardTitle tag="h4">
+                <Row style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1, marginLeft:'0px' }}>
+                  {
+                    selected !== 2 ? null :
+                      <Button color="link" style={{ color: "#ffffff" }} onClick={Messages()}>
+                        <i className="tim-icons icon-simple-remove"  style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }}/>
+                      </Button>
+                  }
+                  {title}
+                </Row>
+              </CardTitle>
             </CardHeader>
             <CardBody>
               {component}
             </CardBody>
           </Card>
         </Col>
-      </Row>
-
-      <Row>
-        {/* <Col lg="2" /> */}
-
       </Row>
     </div>
   )

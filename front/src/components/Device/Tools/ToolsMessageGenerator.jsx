@@ -13,18 +13,14 @@ export const MessagesByContactGenerator = (messages, getInsideChat) => {
     counter += 1
     const phone = message['phone']
     const messages = message['messages']
-    // var date = message['date']
-    // var inbox = message['inbox']
-
-    // getInsideChat(phone)
 
     return <tr key={counter}>
       <td>
         <Col>
-          <Button color="link" alt={"Add device"} style={{ color: "#ffffff" }} onClick={() => getInsideChat(phone)}>
+          <Button color="link" style={{ color: "#ffffff" }} onClick={() => getInsideChat(phone)}>
             <Col>
               <Row style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }}>
-                <i className="tim-icons icon-minimal-right" />
+                <i className="tim-icons icon-minimal-right" style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }} />
                 <p style={{ fontSize: "16px", marginLeft: '10px' }}>
                   {phone}
                 </p>
@@ -57,11 +53,11 @@ export const MessagesByContactGenerator = (messages, getInsideChat) => {
   </Table>
 }
 
-export const MessagesChatGenerator = (chat) => {
-  var phone = chat['phone']
+export const MessagesChatGenerator = (chat, name) => {
+  // var phone = chat['phone']
   var messages = chat['messages']
   var inbox = chat['inbox']
-  var date = chat['date']
+  // var date = chat['date']
 
   const listItems = messages.map((message, index) => {
     var inOut = { alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }
