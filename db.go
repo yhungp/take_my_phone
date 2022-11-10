@@ -49,6 +49,13 @@ func startDatabase() {
 			FOREIGN KEY ("serial") REFERENCES "devices" ("serial")
 			ON DELETE SET NULL`,
 		},
+		{
+			"contacts",
+			`id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			"name" TEXT UNIQUE,
+			"phones" TEXT,
+			"FOREIGN KEY ("serial") REFERENCES "devices" ("serial")"`,
+		},
 	}
 
 	for _, table := range tables {

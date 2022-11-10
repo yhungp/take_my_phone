@@ -1,7 +1,15 @@
 import { MdMessage } from "react-icons/md";
-const { Table, Col, Button, Row } = require("reactstrap")
 
-const ContactsGenerator = (contacts) => {
+import {
+  Card,
+  CardBody,
+  Row,
+  Col,
+  Table,
+  Button
+} from "reactstrap";
+
+export const ContactsGenerator = (contacts) => {
   var counter = -1
   var appsComponent = contacts.map((app) => {
     counter += 1
@@ -50,5 +58,3 @@ const ContactsGenerator = (contacts) => {
     </tbody>
   </Table>
 }
-
-export default ContactsGenerator

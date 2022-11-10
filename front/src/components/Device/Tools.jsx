@@ -18,21 +18,34 @@ import {
 
 
 import ToolsButton from "components/Device/Tools/ToolsButton"
-import ContactsGenerator from "components/Device/Tools/ToolsContactGenerator"
-import callForContacts from "components/Device/Tools/ToolsApiCalls"
-import { callForMessages } from "components/Device/Tools/ToolsApiCalls";
+import {
+  ContactsGenerator,
+} from "components/Device/Tools/ToolsContactsGenerator"
+
+import {
+  MessagesByContactGenerator,
+  MessagesChatGenerator
+} from "components/Device/Tools/ToolsMessageGenerator"
+
+import { 
+  callForMessages, 
+  callForContacts, 
+  updateContacts 
+} from "components/Device/Tools/ToolsApiCalls";
 
 const Tools = (props) => {
-  var devname = props.devname
+  var deviceName = props.devname
 
   const [start, setStart] = useState(true)
   const [contacts, setContacts] = useState(null)
   const [messages, setMessages] = useState(null)
   const [component, setComponent] = useState(null)
+  const [title, setTitle] = useState(null)
 
   useEffect(() => {
     if (start) {
-      callForContacts(setContacts, devname)
+      updateContacts(setContacts, deviceName)
+      setTitle("Contacts")
       setStart(false)
     }
   }, [start])
@@ -43,16 +56,68 @@ const Tools = (props) => {
     }
   }, [contacts])
 
+  useEffect(() => {
+    if (messages !== null) {
+      setComponent(MessagesByContactGenerator(messages, getInsideChat))
+    }
+  }, [messages])
+
   const Contacts = () => {
     setComponent(ContactsGenerator(contacts))
   }
 
   const Messages = () => {
-    if (messages !== null){
-
+    setTitle("Messages")
+    if (messages !== null) {
+      setComponent(MessagesByContactGenerator(messages, getInsideChat))
     } else {
-      callForMessages(setMessages, devname)
+      callForMessages(setMessages, deviceName)
+      setComponent(null)
     }
+  }
+
+  const getInsideChat = (phone) => {
+    setTitle("Chat " + phone)
+
+    var name = ""
+    for (var j in contacts) {
+      var contact = contacts[j]
+      var numbers = contact.slice(1,)
+      var flag = false
+
+      for (var i in numbers) {
+        var number = numbers[i].replaceAll(" ", "")
+
+        if (number.indexOf("+") === -1)  {
+          
+          number = "+" + number
+
+          console.log(number, phone)
+
+          if (number === phone) {
+            name = contact[0]
+            flag = true
+            break
+          }
+        }
+      }
+
+      if (flag) {
+        break
+      }
+    }
+
+    console.log(name)
+
+    for (var index in messages) {
+      var chat = messages[index]
+
+      if (chat['phone'] === phone) {
+        setComponent(MessagesChatGenerator(chat))
+        break
+      }
+    }
+    // 
   }
 
   return (
@@ -85,7 +150,7 @@ const Tools = (props) => {
         <Col lg="9">
           <Card>
             <CardHeader>
-              <CardTitle tag="h4">Simple Table</CardTitle>
+              <CardTitle tag="h4">{title}</CardTitle>
             </CardHeader>
             <CardBody>
               {component}

@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func listContacts(w http.ResponseWriter, r *http.Request) {
+func updateContacts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -67,6 +67,16 @@ func listContacts(w http.ResponseWriter, r *http.Request) {
 	})
 
 	json.NewEncoder(w).Encode(joined)
+}
+
+func listContacts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	id := strings.Fields(mux.Vars(r)["id"])
+
+	fmt.Println(id)
 }
 
 type Messages struct {

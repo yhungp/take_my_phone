@@ -1,38 +1,44 @@
-import { MdMessage } from "react-icons/md";
-const { Table, Col, Button, Row } = require("reactstrap")
+import {
+  Card,
+  CardBody,
+  Row,
+  Col,
+  Table,
+  Button
+} from "reactstrap";
 
-const ContactsGenerator = (contacts) => {
+export const MessagesByContactGenerator = (messages, getInsideChat) => {
   var counter = -1
-  var appsComponent = contacts.map((app) => {
+  var appsComponent = messages.map((message) => {
     counter += 1
-    var name = app[0]
-    var contacts = app.slice(1)
+    const phone = message['phone']
+    const messages = message['messages']
+    // var date = message['date']
+    // var inbox = message['inbox']
+
+    // getInsideChat(phone)
 
     return <tr key={counter}>
       <td>
         <Col>
-          <p style={{ fontSize: "16px" }}>{name}</p>
+          <Button color="link" alt={"Add device"} style={{ color: "#ffffff" }} onClick={() => getInsideChat(phone)}>
+            <Col>
+              <Row style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }}>
+                <i className="tim-icons icon-minimal-right" />
+                <p style={{ fontSize: "16px", marginLeft: '10px' }}>
+                  {phone}
+                </p>
+              </Row>
+            </Col>
+          </Button>
         </Col>
       </td>
       <td className="text-center" style={{ width: '200px' }} >
         <Col>
-          {
-            contacts.map((contact, index) => {
-              return (
-                <p key={index} style={{ fontSize: "12px", margin: '10px' }}>{contact}</p>
-              )
-            })
-          }
+          <p style={{ fontSize: "10px", marginLeft: '10px' }}>
+            Messages count{" "}({messages.length})
+          </p>
         </Col>
-      </td>
-      <td style={{ width: '100px' }} className="text-center">
-        <Button color="link" alt={"Add device"} style={{ color: "#ffffff" }} >
-          <Col>
-            <Row style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }}>
-              <MdMessage size={'20px'} />
-            </Row>
-          </Col>
-        </Button>
       </td>
     </tr>
   })
@@ -40,9 +46,9 @@ const ContactsGenerator = (contacts) => {
   return <Table className="tablesorter" responsive>
     <thead className="text-primary">
       <tr>
-        <th>Name</th>
-        <th className="text-center">Phones</th>
-        <th className="text-center">Send message</th>
+        <th></th>
+        <th></th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -51,4 +57,31 @@ const ContactsGenerator = (contacts) => {
   </Table>
 }
 
-export default ContactsGenerator
+export const MessagesChatGenerator = (chat) => {
+  var phone = chat['phone']
+  var messages = chat['messages']
+  var inbox = chat['inbox']
+  var date = chat['date']
+
+  const listItems = messages.map((message, index) => {
+    var inOut = { alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }
+    var color = "info"
+    var textColor = "#dddddd"
+
+    if (!inbox[index]) {
+      inOut = { alignItems: "center", display: 'flex', justifyContent: 'flex-end', flex: 1 }
+      color = "light"
+      textColor = "#333333"
+    }
+
+    return <Row key={index} style={inOut}>
+      <Card color={color} style={{ maxWidth: '500px' }}>
+        <CardBody>
+          <p style={{color:textColor}}>{message}</p>
+        </CardBody>
+      </Card>
+    </Row>
+  });
+
+  return <Col>{listItems}</Col>
+}

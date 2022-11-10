@@ -4,8 +4,8 @@ __debug_bin.exe
 go.sum
 horizon-ui-chakra-ts-main/modules
 test.txt
-.vscode
-.next
+.vscode/*
+.next/*
 app.go
 front/basic.c
 front/basic.cc
