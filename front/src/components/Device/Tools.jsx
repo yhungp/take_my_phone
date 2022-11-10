@@ -29,7 +29,7 @@ import {
 
 import { 
   callForMessages, 
-  callForContacts, 
+  listContacts, 
   updateContacts 
 } from "components/Device/Tools/ToolsApiCalls";
 
@@ -41,33 +41,42 @@ const Tools = (props) => {
   const [messages, setMessages] = useState(null)
   const [component, setComponent] = useState(null)
   const [title, setTitle] = useState(null)
+  const [selected, setSelected] = useState(0)
 
   useEffect(() => {
     if (start) {
-      updateContacts(setContacts, deviceName)
+      listContacts(setContacts, deviceName)
       setTitle("Contacts")
       setStart(false)
+      updateContacts(contactsUpdater, deviceName)
     }
   }, [start])
 
   useEffect(() => {
-    if (contacts !== null) {
+    if (contacts !== null && selected === 0) {
       setComponent(ContactsGenerator(contacts))
     }
   }, [contacts])
 
   useEffect(() => {
-    if (messages !== null) {
+    if (messages !== null && selected === 1) {
       setComponent(MessagesByContactGenerator(messages, getInsideChat))
     }
   }, [messages])
 
   const Contacts = () => {
     setComponent(ContactsGenerator(contacts))
+    setSelected(0)
+  }
+
+  const contactsUpdater = (contacts) => {
+    setContacts(contacts)
   }
 
   const Messages = () => {
     setTitle("Messages")
+    setSelected(1)
+    
     if (messages !== null) {
       setComponent(MessagesByContactGenerator(messages, getInsideChat))
     } else {

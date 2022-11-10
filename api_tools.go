@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os/exec"
+	"reflect"
 	"sort"
 	"strings"
 
@@ -66,7 +67,63 @@ func updateContacts(w http.ResponseWriter, r *http.Request) {
 		return name1 < name2
 	})
 
-	json.NewEncoder(w).Encode(joined)
+	dbContacts := listDBcontacts(database, id[len(id)-1])
+
+	toDelete, toAdd := getNotRepeatedContacts(joined, dbContacts)
+
+	if len(toDelete) != 0 {
+		deleteContacts(database, toDelete, id[len(id)-1])
+	}
+
+	if len(toAdd) != 0 {
+		addContacts(database, toAdd, id[len(id)-1])
+	}
+
+	var res contactsUpdateResult
+
+	if len(toAdd) != 0 || len(toDelete) != 0 {
+		res.Contacts = joined
+		res.Updated = true
+		json.NewEncoder(w).Encode(res)
+
+		return
+	}
+
+	res.Updated = false
+	json.NewEncoder(w).Encode(res)
+}
+
+func getNotRepeatedContacts(fromCell [][]string, dbContacts [][]string) ([][]string, [][]string) {
+	var toDeleteToDB [][]string
+	var toAddToDB [][]string
+
+	for _, c := range dbContacts {
+		if !in_slice(c, fromCell) && !in_slice(c, toDeleteToDB) {
+			toDeleteToDB = append(toDeleteToDB, c)
+		}
+	}
+
+	for _, c := range fromCell {
+		if !in_slice(c, dbContacts) && !in_slice(c, toAddToDB) {
+			toAddToDB = append(toAddToDB, c)
+		}
+	}
+
+	return toDeleteToDB, toAddToDB
+}
+
+func in_slice(n []string, h [][]string) bool {
+	for _, v := range h {
+		if reflect.DeepEqual(v, n) {
+			return true
+		}
+	}
+	return false
+}
+
+type contactsUpdateResult struct {
+	Contacts [][]string `json:"contacts"`
+	Updated  bool       `json:"updated"`
 }
 
 func listContacts(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +133,8 @@ func listContacts(w http.ResponseWriter, r *http.Request) {
 
 	id := strings.Fields(mux.Vars(r)["id"])
 
-	fmt.Println(id)
+	contacts := listDBcontacts(database, id[len(id)-1])
+	json.NewEncoder(w).Encode(contacts)
 }
 
 type Messages struct {

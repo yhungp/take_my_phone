@@ -7,6 +7,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -51,10 +52,13 @@ func startDatabase() {
 		},
 		{
 			"contacts",
-			`id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			"name" TEXT UNIQUE,
-			"phones" TEXT,
-			"FOREIGN KEY ("serial") REFERENCES "devices" ("serial")"`,
+			`"id" INTEGER NOT NULL UNIQUE,
+			"name" TEXT NOT NULL,
+			"phones" TEXT NOT NULL,
+			"serial" TEXT NOT NULL, 
+			PRIMARY KEY("id" AUTOINCREMENT),
+			FOREIGN KEY ("serial") REFERENCES "devices" ("serial")
+			ON DELETE SET NULL`,
 		},
 	}
 
@@ -275,4 +279,126 @@ func listAppsByDevice(db *sql.DB, serial string) [][]string {
 	}
 
 	return list_apps
+}
+
+func addContacts(db *sql.DB, contacts [][]string, serial string) (bool, string) {
+	errors_list := []error{}
+	index := getDeviceIndex(database, serial)
+
+	if index == -1 {
+		return false, "no_device"
+	}
+
+	for _, contact := range contacts {
+		name := contact[0]
+		phones := strings.Join(contact[1:], "*/*/*")
+
+		records := `INSERT INTO contacts (name, phones, serial) VALUES (?, ?, ?)`
+		query, err := db.Prepare(records)
+		if err != nil {
+			errors_list = append(errors_list, err)
+		}
+		_, err = query.Exec(name, phones, fmt.Sprintf("%d", index))
+		if err != nil {
+			errors_list = append(errors_list, err)
+		}
+	}
+
+	if len(errors_list) == 0 {
+		return true, "success"
+	}
+
+	return false, "error"
+}
+
+func deleteContacts(db *sql.DB, contacts [][]string, serial string) (bool, string) {
+	errors_list := []error{}
+
+	for _, contact := range contacts {
+		name := contact[0]
+		phones := strings.Join(contact[1:], "*/*/*")
+
+		index, err := getContactIndex(database, name, phones, serial)
+
+		if err != nil {
+			continue
+		}
+
+		if index == -1 {
+			continue
+		}
+
+		records := `DELETE FROM contacts WHERE id = ?;`
+		query, err := db.Prepare(records)
+		if err != nil {
+			errors_list = append(errors_list, err)
+			continue
+		}
+
+		_, err = query.Exec(fmt.Sprintf("%d", index))
+		if err != nil {
+			errors_list = append(errors_list, err)
+		}
+	}
+
+	if len(errors_list) == 0 {
+		return true, "success"
+	}
+
+	return false, "error"
+}
+
+func getContactIndex(db *sql.DB, name string, phones string, serial string) (int, error) {
+	query := fmt.Sprintf(
+		"SELECT * FROM contacts where name=\"%s\" AND phones=\"%s\" AND serial=\"%d\"",
+		name,
+		phones,
+		getDeviceIndex(database, serial),
+	)
+
+	record, err := db.Query(query)
+	if err != nil {
+		return -1, err
+	}
+	defer record.Close()
+
+	for record.Next() {
+		var id int
+		var name string
+		var phones string
+		var serial string
+
+		record.Scan(&id, &name, &phones, &serial)
+		return id, nil
+	}
+
+	return -1, nil
+}
+
+func listDBcontacts(db *sql.DB, serial string) [][]string {
+	index := getDeviceIndex(database, serial)
+
+	query := fmt.Sprintf("SELECT * FROM contacts where serial = \"%s\"", fmt.Sprintf("%d", index))
+	record, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer record.Close()
+
+	var contacts [][]string
+
+	for record.Next() {
+		var ser string
+		var id int
+		var name string
+		var phones string
+		record.Scan(&id, &name, &phones, ser)
+
+		contact := []string{name}
+		contact = append(contact, strings.Split(phones, "*/*/*")...)
+
+		contacts = append(contacts, contact)
+	}
+
+	return contacts
 }

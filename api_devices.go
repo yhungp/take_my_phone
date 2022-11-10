@@ -72,7 +72,7 @@ func deviceStorage(w http.ResponseWriter, r *http.Request) {
 	app := "adb"
 	code := fmt.Sprintf("-s %s shell dumpsys diskstats", id[len(id)-1])
 	cmd := exec.Command(app, strings.Fields(code)...)
-	stdout, err := cmd.Output()
+	stdout, _ := cmd.Output()
 
 	// out := strings.ReplaceAll(string(stdout), "\r", "")
 	lines := strings.Split(string(stdout), "\n")
@@ -86,7 +86,7 @@ func deviceStorage(w http.ResponseWriter, r *http.Request) {
 
 	code = fmt.Sprintf("-s %s shell df /sdcard | tail -n 1", id[len(id)-1])
 	cmd = exec.Command(app, strings.Fields(code)...)
-	stdout, err = cmd.Output()
+	stdout, err := cmd.Output()
 
 	if strings.Contains(string(stdout), "device offline") || err != nil {
 		json.NewEncoder(w).Encode("device offline")

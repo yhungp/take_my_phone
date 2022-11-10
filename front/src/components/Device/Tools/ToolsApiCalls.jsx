@@ -1,19 +1,18 @@
-export const callForContacts = (setFunction, dev) => {
+export const listContacts = (setFunction, dev) => {
   fetch("http://localhost:8080/list-contacts/" + dev)
   .then(res => res.json())
   .then(
     (result) => {
       if (result == null) {
-        // setCount((count) => 0)
+        return
       }
-      else {
-        if (result !== "device offline") {
-          setFunction(result)
-        }
+      
+      if (result !== "device offline") {
+        setFunction(result)
       }
     },
     (error) => {
-      // setCount((i) => 0)
+      console.log(error)
     }
   )
 }
@@ -24,12 +23,12 @@ export const updateContacts = (setFunction, dev)  => {
   .then(
     (result) => {
       if (result == null) {
-        // setCount((count) => 0)
+        return
       }
-      else {
-        if (result !== "device offline") {
-          setFunction(result)
-        }
+
+      if (result !== "device offline" && result['updated']) {
+        setFunction(result['contacts'])
+        return
       }
     },
     (error) => {
@@ -44,12 +43,10 @@ export const callForMessages = (setFunction, dev) => {
   .then(
     (result) => {
       if (result == null) {
-        // setCount((count) => 0)
+        return
       }
-      else {
-        if (result !== "device offline") {
-          setFunction(result)
-        }
+      if (result !== "device offline") {
+        setFunction(result)
       }
     },
     (error) => {
