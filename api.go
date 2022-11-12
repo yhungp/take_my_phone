@@ -48,6 +48,8 @@ func InitializeRoutes() {
 	router.HandleFunc("/list-videos/{id}", listVideo)
 	router.HandleFunc("/list-photos/{id}", listPhotos)
 	router.HandleFunc("/list-contacts/{id}", listContacts)
-	router.HandleFunc("/update-contacts/{id}", updateContacts)
 	router.HandleFunc("/list-messages/{id}", listMessages)
+	router.HandleFunc("/update-contacts/{id}", updateContacts)
+	router.HandleFunc("/update-messages/{id}", updateMessages)
+	router.HandleFunc("/send-message/", sendMessage).Methods("POST")
 }

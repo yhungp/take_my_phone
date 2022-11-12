@@ -1,20 +1,19 @@
 import { MdMessage } from "react-icons/md";
 
 import {
-  Card,
-  CardBody,
   Row,
   Col,
   Table,
   Button
 } from "reactstrap";
 
-export const ContactsGenerator = (contacts) => {
+export const ContactsGenerator = (contacts, showSendMessage, toggleModalSearch) => {
+
   var counter = -1
-  var appsComponent = contacts.map((app) => {
+  var contactComponent = contacts.map((contact) => {
     counter += 1
-    var name = app[0]
-    var contacts = app.slice(1)
+    var name = contact[0]
+    var contacts = contact.slice(1)
 
     return <tr key={counter}>
       <td>
@@ -34,10 +33,12 @@ export const ContactsGenerator = (contacts) => {
         </Col>
       </td>
       <td style={{ width: '100px' }} className="text-center">
-        <Button color="link" alt={"Add device"} style={{ color: "#ffffff" }} >
+        <Button color="link" alt={"Add device"} style={{ color: "#ffffff" }} onClick={() => {
+          showSendMessage(name, contacts)
+        }}>
           <Col>
             <Row style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }}>
-              <MdMessage size={'20px'} />
+              <MdMessage size={'20px'}/>
             </Row>
           </Col>
         </Button>
@@ -54,7 +55,7 @@ export const ContactsGenerator = (contacts) => {
       </tr>
     </thead>
     <tbody>
-      {appsComponent}
+      {contactComponent}
     </tbody>
   </Table>
 }

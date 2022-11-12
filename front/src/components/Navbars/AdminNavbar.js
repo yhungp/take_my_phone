@@ -44,9 +44,9 @@ import routes from "routes";
 import Devices from "views/Devices";
 
 function AdminNavbar(props) {
-  const [collapseOpen, setcollapseOpen] = React.useState(false);
-  const [modalSearch, setmodalSearch] = React.useState(false);
-  const [color, setcolor] = React.useState("navbar-transparent");
+  const [collapseOpen, setCollapseOpen] = React.useState(false);
+  const [modalSearch, setModalSearch] = React.useState(false);
+  const [color, setColor] = React.useState("navbar-transparent");
   const [devices, setDevices] = React.useState([]);
 
   React.useEffect(() => {
@@ -60,25 +60,25 @@ function AdminNavbar(props) {
   // function that adds color white/transparent to the navbar on resize (this is for the collapse)
   const updateColor = () => {
     if (window.innerWidth < 993 && collapseOpen) {
-      setcolor("bg-white");
+      setColor("bg-white");
     } else {
-      setcolor("navbar-transparent");
+      setColor("navbar-transparent");
     }
   };
 
   // this function opens and closes the collapse on small devices
   const toggleCollapse = () => {
     if (collapseOpen) {
-      setcolor("navbar-transparent");
+      setColor("navbar-transparent");
     } else {
-      setcolor("bg-white");
+      setColor("bg-white");
     }
-    setcollapseOpen(!collapseOpen);
+    setCollapseOpen(!collapseOpen);
   };
 
   // this function is to open the Search modal
   const toggleModalSearch = () => {
-    setmodalSearch(!modalSearch);
+    setModalSearch(!modalSearch);
   };
 
   const renderListOfUserNames = (devs) => {

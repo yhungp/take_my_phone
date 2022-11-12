@@ -29,10 +29,13 @@ import {
 } from "components/Device/Tools/ToolsMessageGenerator"
 
 import {
-  callForMessages,
+  listMessages,
+  updateMessages,
   listContacts,
   updateContacts
 } from "components/Device/Tools/ToolsApiCalls";
+
+import { SendMessage } from 'components/Device/Tools/ToolSendMessage'
 
 const Tools = (props) => {
   var deviceName = props.devname
@@ -55,19 +58,28 @@ const Tools = (props) => {
 
   useEffect(() => {
     if (contacts !== null && selected === 0) {
-      setComponent(ContactsGenerator(contacts))
+      setComponent(ContactsGenerator(contacts, showSendMessage, toggleModalSearch))
     }
   }, [contacts])
 
   useEffect(() => {
     if (messages !== null && selected === 1) {
-      setComponent(MessagesByContactGenerator(messages, getInsideChat))
+      setComponent(MessagesByContactGenerator(messages, getInsideChat, contacts))
     }
   }, [messages])
 
   const Contacts = () => {
-    setComponent(ContactsGenerator(contacts))
+    setComponent(ContactsGenerator(contacts, showSendMessage, toggleModalSearch))
     setSelected(0)
+    setTitle("Contacts")
+  }
+
+  const showSendMessage = (name, contacts) => {
+    setSelected(3)
+    setTitle("Send message to " + name)
+
+    console.log(deviceName)
+    setComponent(SendMessage(deviceName))
   }
 
   const contactsUpdater = (contacts) => {
@@ -79,9 +91,10 @@ const Tools = (props) => {
     setSelected(1)
 
     if (messages !== null) {
-      setComponent(MessagesByContactGenerator(messages, getInsideChat))
+      setComponent(MessagesByContactGenerator(messages, getInsideChat, contacts))
     } else {
-      callForMessages(setMessages, deviceName)
+      listMessages(setMessages, deviceName)
+      updateMessages(setMessages, deviceName)
       setComponent(null)
     }
   }
@@ -124,6 +137,13 @@ const Tools = (props) => {
 
   }
 
+  const [modalSearch, setModalSearch] = React.useState(false);
+
+  const toggleModalSearch = () => {
+    console.log("test")
+    setModalSearch(!modalSearch);
+  };
+
   return (
     <div className="content">
       <Row>
@@ -155,11 +175,18 @@ const Tools = (props) => {
           <Card>
             <CardHeader>
               <CardTitle tag="h4">
-                <Row style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1, marginLeft:'0px' }}>
+                <Row style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1, marginLeft: '0px' }}>
                   {
-                    selected !== 2 ? null :
-                      <Button color="link" style={{ color: "#ffffff" }} onClick={Messages()}>
-                        <i className="tim-icons icon-simple-remove"  style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }}/>
+                    (selected !== 2) ? null :
+                      <Button color="link" style={{ color: "#ffffff" }} onClick={Messages}>
+                        <i className="tim-icons icon-simple-remove" style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }} />
+                      </Button>
+                  }
+
+                  {
+                    selected !== 3 ? null :
+                      <Button color="link" style={{ color: "#ffffff" }} onClick={Contacts}>
+                        <i className="tim-icons icon-simple-remove" style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }} />
                       </Button>
                   }
                   {title}

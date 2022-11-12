@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import {
   Card,
   CardBody,
@@ -7,27 +8,54 @@ import {
   Button
 } from "reactstrap";
 
-export const MessagesByContactGenerator = (messages, getInsideChat) => {
+export const MessagesByContactGenerator = (messages, getInsideChat, contacts) => {
   var counter = -1
+
   var appsComponent = messages.map((message) => {
     counter += 1
     const phone = message['phone']
     const messages = message['messages']
+    // var date = message['date']
+    // var inbox = message['inbox']
+
+    // getInsideChat(phone)
+
+    var name = ""
+    for (var j in contacts) {
+      var contact = contacts[j]
+      var numbers = contact.slice(1,)
+      var flag = false
+
+      for (var i in numbers) {
+        var number = numbers[i].replaceAll(" ", "")
+
+        if (phone.indexOf(number) !== -1) {
+          name = contact[0]
+          flag = true
+          break
+        }
+      }
+
+      if (flag) {
+        break
+      }
+    }
 
     return <tr key={counter}>
       <td>
-        <Col>
-          <Button color="link" style={{ color: "#ffffff" }} onClick={() => getInsideChat(phone)}>
+        <Button
+          color="link"
+          onClick={() => getInsideChat(phone)}
+          className={classNames("btn-simple")}
+          style={{ alignItems: "flex-start", marginRight: '50px', flex: 1 }}>
+          <Row style={{ marginLeft: '10px', alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }}>
+            <i className="tim-icons icon-minimal-right" color="#ffffff" />
             <Col>
-              <Row style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }}>
-                <i className="tim-icons icon-minimal-right" style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-start', flex: 1 }} />
-                <p style={{ fontSize: "16px", marginLeft: '10px' }}>
-                  {phone}
-                </p>
-              </Row>
+              <p style={{ textAlign: 'justify' }} >{name}</p>
+              <p style={{ textAlign: 'justify' }} >{phone}</p>
             </Col>
-          </Button>
-        </Col>
+          </Row>
+        </Button>
       </td>
       <td className="text-center" style={{ width: '200px' }} >
         <Col>
@@ -73,7 +101,7 @@ export const MessagesChatGenerator = (chat, name) => {
     return <Row key={index} style={inOut}>
       <Card color={color} style={{ maxWidth: '500px' }}>
         <CardBody>
-          <p style={{color:textColor}}>{message}</p>
+          <p style={{ color: textColor }}>{message}</p>
         </CardBody>
       </Card>
     </Row>

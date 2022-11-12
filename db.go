@@ -60,6 +60,18 @@ func startDatabase() {
 			FOREIGN KEY ("serial") REFERENCES "devices" ("serial")
 			ON DELETE SET NULL`,
 		},
+		{
+			"messages",
+			`"id" INTEGER NOT NULL UNIQUE,
+			"phone" TEXT NOT NULL,
+			"message" TEXT NOT NULL,
+			"inbox" TEXT NOT NULL,
+			"date" TEXT NOT NULL,
+			"serial" TEXT NOT NULL, 
+			PRIMARY KEY("id" AUTOINCREMENT),
+			FOREIGN KEY ("serial") REFERENCES "devices" ("serial")
+			ON DELETE SET NULL`,
+		},
 	}
 
 	for _, table := range tables {
@@ -401,4 +413,80 @@ func listDBcontacts(db *sql.DB, serial string) [][]string {
 	}
 
 	return contacts
+}
+
+func addMessages(db *sql.DB, messages []Messages, serial string) (bool, string) {
+	errors_count := 0
+	index := getDeviceIndex(database, serial)
+
+	if index == -1 {
+		return false, "no_device"
+	}
+
+	for _, message := range messages {
+		phone := message.Phone
+		msgs := message.Messages
+		inbox := message.Inbox
+		date := message.Date
+
+		for i, msg := range msgs {
+			records := `INSERT INTO messages (phone, message, inbox, date, serial) VALUES (?, ?, ?, ?, ?)`
+			query, err := db.Prepare(records)
+			if err != nil {
+				errors_count += 1
+			}
+			_, err = query.Exec(phone, msg, inbox[i], date[i], fmt.Sprintf("%d", index))
+			if err != nil {
+				errors_count += 1
+			}
+		}
+	}
+
+	if errors_count == 0 {
+		return true, "success"
+	}
+
+	return false, "error"
+}
+
+func deleteMessages(db *sql.DB, contacts [][]string, serial string) (bool, string) {
+	return false, ""
+}
+
+func getMessageIndex(db *sql.DB, name string, phones string, serial string) (int, error) {
+	return -1, nil
+}
+
+func listDBmessages(db *sql.DB, serial string) [][]string {
+	index := getDeviceIndex(database, serial)
+
+	query := fmt.Sprintf("SELECT * FROM messages where serial = \"%s\"", fmt.Sprintf("%d", index))
+	record, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer record.Close()
+
+	var messages [][]string
+
+	for record.Next() {
+		var ser string
+		var id int
+		var phone string
+		var message string
+		var inbox string
+		var date string
+		record.Scan(&id, &phone, &message, &inbox, &date, &ser)
+
+		msg := []string{
+			phone,
+			message,
+			inbox,
+			date,
+		}
+
+		messages = append(messages, msg)
+	}
+
+	return messages
 }

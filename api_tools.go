@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os/exec"
 	"reflect"
@@ -69,7 +70,7 @@ func updateContacts(w http.ResponseWriter, r *http.Request) {
 
 	dbContacts := listDBcontacts(database, id[len(id)-1])
 
-	toDelete, toAdd := getNotRepeatedContacts(joined, dbContacts)
+	toDelete, toAdd := checkRealExistingContacts(joined, dbContacts)
 
 	if len(toDelete) != 0 {
 		deleteContacts(database, toDelete, id[len(id)-1])
@@ -93,18 +94,18 @@ func updateContacts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func getNotRepeatedContacts(fromCell [][]string, dbContacts [][]string) ([][]string, [][]string) {
+func checkRealExistingContacts(fromCell [][]string, dbContacts [][]string) ([][]string, [][]string) {
 	var toDeleteToDB [][]string
 	var toAddToDB [][]string
 
 	for _, c := range dbContacts {
-		if !in_slice(c, fromCell) && !in_slice(c, toDeleteToDB) {
+		if !in_slice_apps(c, fromCell) && !in_slice_apps(c, toDeleteToDB) {
 			toDeleteToDB = append(toDeleteToDB, c)
 		}
 	}
 
 	for _, c := range fromCell {
-		if !in_slice(c, dbContacts) && !in_slice(c, toAddToDB) {
+		if !in_slice_apps(c, dbContacts) && !in_slice_apps(c, toAddToDB) {
 			toAddToDB = append(toAddToDB, c)
 		}
 	}
@@ -112,7 +113,7 @@ func getNotRepeatedContacts(fromCell [][]string, dbContacts [][]string) ([][]str
 	return toDeleteToDB, toAddToDB
 }
 
-func in_slice(n []string, h [][]string) bool {
+func in_slice_apps(n []string, h [][]string) bool {
 	for _, v := range h {
 		if reflect.DeepEqual(v, n) {
 			return true
@@ -151,6 +152,31 @@ func listMessages(w http.ResponseWriter, r *http.Request) {
 
 	id := strings.Fields(mux.Vars(r)["id"])
 
+	messages := listDBmessages(database, id[len(id)-1])
+
+	var dbMessage []Messages
+
+	for _, m := range messages {
+		dbMessage = append(dbMessage, Messages{
+			Phone:    m[0],
+			Messages: []string{m[1]},
+			Inbox:    []bool{m[2] == "1"},
+			Date:     []string{m[3]},
+		})
+	}
+
+	dbMessage = joinMessages(dbMessage)
+
+	json.NewEncoder(w).Encode(dbMessage)
+}
+
+func updateMessages(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	id := strings.Fields(mux.Vars(r)["id"])
+
 	command := fmt.Sprintf("-s %s shell content query --uri content://sms/inbox --projection address:body:date", id[len(id)-1])
 	cmd := exec.Command("adb", strings.Fields(command)...)
 	stdout, _ := cmd.Output()
@@ -177,7 +203,75 @@ func listMessages(w http.ResponseWriter, r *http.Request) {
 
 	joined := joinMessages(fullMessages)
 
-	json.NewEncoder(w).Encode(joined)
+	var dbMessage []Messages
+
+	for _, m := range listDBmessages(database, id[len(id)-1]) {
+		dbMessage = append(dbMessage, Messages{
+			Phone:    m[0],
+			Messages: []string{m[1]},
+			Inbox:    []bool{m[2] == "1"},
+			Date:     []string{m[3]},
+		})
+	}
+
+	var res messagesUpdateResult
+
+	if len(dbMessage) == 0 {
+		addMessages(database, joined, id[len(id)-1])
+
+		res.Msgs = joined
+		res.Updated = true
+
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+	dbMessage = joinMessages(dbMessage)
+
+	toAdd, toDelete := checkRealExistingMessages(dbMessage, joined)
+
+	if len(toAdd) != 0 || len(toDelete) != 0 {
+		res.Msgs = joined
+		res.Updated = true
+
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+	json.NewEncoder(w).Encode(res)
+}
+
+type messagesUpdateResult struct {
+	Msgs    []Messages `json:"messages"`
+	Updated bool       `json:"updated"`
+}
+
+func checkRealExistingMessages(db []Messages, phone []Messages) ([]Messages, []Messages) {
+	var toDelete []Messages
+	var toAdd []Messages
+
+	for _, c := range db {
+		if !in_slice_messages(c, phone) && !in_slice_messages(c, toDelete) {
+			toDelete = append(toDelete, c)
+		}
+	}
+
+	for _, c := range phone {
+		if !in_slice_messages(c, db) && !in_slice_messages(c, toAdd) {
+			toAdd = append(toAdd, c)
+		}
+	}
+
+	return toDelete, toAdd
+}
+
+func in_slice_messages(n Messages, h []Messages) bool {
+	for _, v := range h {
+		if reflect.DeepEqual(v, n) {
+			return true
+		}
+	}
+	return false
 }
 
 func joinLines(lines []string) []string {
@@ -307,4 +401,25 @@ type messageInbox struct {
 	message string
 	inbox   bool
 	date    string
+}
+
+type sendMsg struct {
+	Phone   string `json:"phone"`
+	Message string `json:"message"`
+	Serial  string `json:"serial"`
+}
+
+func sendMessage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	reqBody, _ := io.ReadAll(r.Body)
+
+	var msg sendMsg
+	json.Unmarshal([]byte(string(reqBody)), &msg)
+
+	//  service call isms 5 i32 0 s16 "com.android.mms.service" s16 "null" s16 "+5352184805" s16 "null" s16 "prueba" s16 "null" s16 "null" i32 0 i64 0
+
+	json.NewEncoder(w).Encode(msg)
 }
