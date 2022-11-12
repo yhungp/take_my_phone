@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 // nodejs library that concatenates classes
 // react plugin used to create charts
-import { MdContactPhone, MdMessage } from "react-icons/md";
+import { MdContactPhone, MdMessage, MdSearch } from "react-icons/md";
 
 
 // reactstrap components
@@ -15,6 +15,8 @@ import {
   Row,
   Col,
   Button,
+  FormGroup,
+  Input,
 } from "reactstrap";
 
 
@@ -43,6 +45,7 @@ const Tools = (props) => {
   const [start, setStart] = useState(true)
   const [contacts, setContacts] = useState(null)
   const [messages, setMessages] = useState(null)
+  const [messagesToShow, setMessagesToShow] = useState(null)
   const [component, setComponent] = useState(null)
   const [title, setTitle] = useState(null)
   const [selected, setSelected] = useState(0)
@@ -65,6 +68,7 @@ const Tools = (props) => {
   useEffect(() => {
     if (messages !== null && selected === 1) {
       setComponent(MessagesByContactGenerator(messages, getInsideChat, contacts))
+      setMessagesToShow(messages)
     }
   }, [messages])
 
@@ -98,6 +102,77 @@ const Tools = (props) => {
       setComponent(null)
     }
   }
+
+  const handleInput = event => {
+    let val = event.target.value
+
+    if (val === "" && selected === 0) {
+      setComponent(ContactsGenerator(contacts, showSendMessage, toggleModalSearch))
+      return
+    }
+
+    if (val === "" && selected === 1) {
+      setComponent(MessagesByContactGenerator(messages, getInsideChat, contacts))
+      return
+    }
+
+    var toShow = []
+    if (selected === 0) {
+      for (let index in contacts) {
+        let contact = contacts[index]
+
+        var contact_exist = contact.map((elem) => {
+          if (elem.toUpperCase().indexOf(val.toUpperCase()) !== -1) {
+            return true
+          }
+          return false
+        })
+
+        if (contact_exist.some(item => item === true)) {
+          toShow.push(contact)
+        }
+      }
+
+      setComponent(ContactsGenerator(toShow, showSendMessage, toggleModalSearch))
+      return
+    }
+
+    for (let index in messages) {
+      let message = messages[index]
+      let phone = message['phone']
+
+      var name = ""
+      for (var j in contacts) {
+        var contact = contacts[j]
+        var numbers = contact.slice(1,)
+        var flag = false
+
+        for (var i in numbers) {
+          var number = numbers[i].replaceAll(" ", "")
+
+          if (phone.indexOf(number) !== -1) {
+            name = contact[0]
+            flag = true
+            break
+          }
+        }
+
+        if (flag) {
+          break
+        }
+      }
+
+      if (name === "") {
+        name = phone
+      }
+
+      if (name.indexOf(val) !== -1) {
+        toShow.push(message)
+      }
+    }
+
+    setComponent(MessagesByContactGenerator(toShow, getInsideChat, contacts))
+  };
 
   const getInsideChat = (phone) => {
     setTitle("Chat " + phone)
@@ -190,6 +265,16 @@ const Tools = (props) => {
                       </Button>
                   }
                   {title}
+                  {
+                    selected === 0 || selected === 1 ?
+                      <Row style={{ alignItems: "center", display: 'flex', justifyContent: 'flex-end', flex: 1, marginLeft: '0px', marginRight: '35px' }}>
+                        <FormGroup >
+                          <Input onChange={handleInput} placeholder="Search name/phone" style={{ textAlign: 'center' }} />
+                        </FormGroup>
+                      </Row>
+                      :
+                      null
+                  }
                 </Row>
               </CardTitle>
             </CardHeader>
