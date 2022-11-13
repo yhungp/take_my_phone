@@ -15,10 +15,6 @@ export const MessagesByContactGenerator = (messages, getInsideChat, contacts) =>
     counter += 1
     const phone = message['phone']
     const messages = message['messages']
-    // var date = message['date']
-    // var inbox = message['inbox']
-
-    // getInsideChat(phone)
 
     var name = ""
     for (var j in contacts) {

@@ -80,10 +80,13 @@ const Tools = (props) => {
 
   const showSendMessage = (name, contacts) => {
     setSelected(3)
-    setTitle("Send message to " + name)
-
-    console.log(deviceName)
-    setComponent(SendMessage(deviceName))
+    
+    if (contacts.length === 1 && name !== contacts[0]) {
+      name += " (" + contacts[0] + ")"
+    }
+    
+    setTitle("Send message to " + name)    
+    setComponent(SendMessage(deviceName, contacts))
   }
 
   const contactsUpdater = (contacts) => {
@@ -101,6 +104,31 @@ const Tools = (props) => {
       updateMessages(setMessages, deviceName)
       setComponent(null)
     }
+  }
+
+  const getName = (phone) => {
+    var name = ""
+    for (var j in contacts) {
+      var contact = contacts[j]
+      var numbers = contact.slice(1,)
+      var flag = false
+
+      for (var i in numbers) {
+        var number = numbers[i].replaceAll(" ", "")
+
+        if (phone.indexOf(number) !== -1) {
+          name = contact[0]
+          flag = true
+          break
+        }
+      }
+
+      if (flag) {
+        break
+      }
+    }
+
+    return name
   }
 
   const handleInput = event => {
@@ -141,32 +169,14 @@ const Tools = (props) => {
       let message = messages[index]
       let phone = message['phone']
 
-      var name = ""
-      for (var j in contacts) {
-        var contact = contacts[j]
-        var numbers = contact.slice(1,)
-        var flag = false
+      var name = getName(phone)
 
-        for (var i in numbers) {
-          var number = numbers[i].replaceAll(" ", "")
-
-          if (phone.indexOf(number) !== -1) {
-            name = contact[0]
-            flag = true
-            break
-          }
-        }
-
-        if (flag) {
-          break
-        }
+      if (name === "" && phone.toUpperCase().indexOf(val.toUpperCase()) !== -1) {
+        toShow.push(message)
+        continue
       }
 
-      if (name === "") {
-        name = phone
-      }
-
-      if (name.indexOf(val) !== -1) {
+      if (name.toUpperCase().indexOf(val.toUpperCase()) !== -1 || phone.toUpperCase().indexOf(val.toUpperCase()) !== -1) {
         toShow.push(message)
       }
     }
@@ -177,26 +187,7 @@ const Tools = (props) => {
   const getInsideChat = (phone) => {
     setTitle("Chat " + phone)
 
-    var name = ""
-    for (var j in contacts) {
-      var contact = contacts[j]
-      var numbers = contact.slice(1,)
-      var flag = false
-
-      for (var i in numbers) {
-        var number = numbers[i].replaceAll(" ", "")
-
-        if (phone.indexOf(number) !== -1) {
-          name = contact[0]
-          flag = true
-          break
-        }
-      }
-
-      if (flag) {
-        break
-      }
-    }
+    var name = getName(phone)
 
     for (var index in messages) {
       var chat = messages[index]
@@ -279,6 +270,9 @@ const Tools = (props) => {
               </CardTitle>
             </CardHeader>
             <CardBody>
+              {/* <div style={{height:'200px'}}>
+                {component}
+              </div> */}
               {component}
             </CardBody>
           </Card>

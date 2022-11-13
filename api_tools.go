@@ -181,7 +181,7 @@ func updateMessages(w http.ResponseWriter, r *http.Request) {
 	cmd := exec.Command("adb", strings.Fields(command)...)
 	stdout, _ := cmd.Output()
 
-	lines := strings.Split(strings.ReplaceAll(string(stdout), "\r", ""), "\n")[1:]
+	lines := strings.Split(strings.ReplaceAll(string(stdout), "\r", ""), "\n")
 	lines = delete_empty(lines)
 
 	savedLines := joinLines(lines)
@@ -191,7 +191,7 @@ func updateMessages(w http.ResponseWriter, r *http.Request) {
 	cmd = exec.Command("adb", strings.Fields(command)...)
 	stdout, _ = cmd.Output()
 
-	lines = strings.Split(strings.ReplaceAll(string(stdout), "\r", ""), "\n")[1:]
+	lines = strings.Split(strings.ReplaceAll(string(stdout), "\r", ""), "\n")
 	lines = delete_empty(lines)
 
 	savedLines = joinLines(lines)
@@ -228,7 +228,15 @@ func updateMessages(w http.ResponseWriter, r *http.Request) {
 
 	dbMessage = joinMessages(dbMessage)
 
-	toAdd, toDelete := checkRealExistingMessages(dbMessage, joined)
+	toDelete, toAdd := checkRealExistingMessages(dbMessage, joined)
+
+	if len(toDelete) != 0 {
+		deleteMessages(database, toDelete, id[len(id)-1])
+	}
+
+	if len(toAdd) != 0 {
+		addMessages(database, toAdd, id[len(id)-1])
+	}
 
 	if len(toAdd) != 0 || len(toDelete) != 0 {
 		res.Msgs = joined
@@ -390,8 +398,6 @@ func joinMessages(messages []Messages) []Messages {
 		joined[i].Messages = m.Messages
 		joined[i].Inbox = m.Inbox
 		joined[i].Date = m.Date
-
-		fmt.Println()
 	}
 
 	return joined
@@ -407,6 +413,7 @@ type sendMsg struct {
 	Phone   string `json:"phone"`
 	Message string `json:"message"`
 	Serial  string `json:"serial"`
+	Code    string `json:"code"`
 }
 
 func sendMessage(w http.ResponseWriter, r *http.Request) {
@@ -421,5 +428,49 @@ func sendMessage(w http.ResponseWriter, r *http.Request) {
 
 	//  service call isms 5 i32 0 s16 "com.android.mms.service" s16 "null" s16 "+5352184805" s16 "null" s16 "prueba" s16 "null" s16 "null" i32 0 i64 0
 
-	json.NewEncoder(w).Encode(msg)
+	var res sendMessageResponse
+	res.Sended = true
+
+	// command := fmt.Sprintf(`-s %s shell dumpsys window`, msg.Serial)
+	// stdout := executeAdbCommand(command)
+
+	// lines := strings.Split(stdout, "\n")
+
+	// if checkLockScreen(lines) {
+	// 	res.Sended = false
+	// 	res.ErrorSending = "locked"
+	// 	json.NewEncoder(w).Encode(res)
+	// 	return
+	// }
+
+	command := fmt.Sprintf(`-s %s shell service call isms 5 i32 0 s16 "com.android.mms.service" s16 "null" s16 "%s" s16 "null" s16 "%s" s16 "null" s16 "null" i32 0 i64 0`, msg.Serial, msg.Phone, msg.Message)
+
+	// executeAdbCommand(command)
+
+	json.NewEncoder(w).Encode(command)
+}
+
+func checkLockScreen(lines []string) bool {
+	lock := ""
+
+	for _, l := range lines {
+		if strings.Contains(l, "mDreamingLockscreen") {
+			lock = strings.Fields(l)[1]
+			break
+		}
+	}
+
+	return strings.Split(lock, "=")[1] == "true"
+}
+
+func executeAdbCommand(command string) string {
+	cmd := exec.Command("adb", strings.Fields(command)...)
+	stdout, _ := cmd.Output()
+
+	return string(stdout)
+}
+
+type sendMessageResponse struct {
+	Sended       bool   `json:"sended"`
+	ErrorSending string `json:"error"`
 }

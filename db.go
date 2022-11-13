@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"reflect"
 	"strconv"
 	"strings"
 
@@ -24,8 +23,6 @@ func startDatabase() {
 	}
 
 	database, _ = sql.Open("sqlite3", "database.db")
-
-	fmt.Println(reflect.TypeOf(database))
 
 	tables := [][]string{
 		{
@@ -430,6 +427,21 @@ func addMessages(db *sql.DB, messages []Messages, serial string) (bool, string) 
 		date := message.Date
 
 		for i, msg := range msgs {
+			in := "0"
+			if inbox[i] {
+				in = "1"
+			}
+
+			indexes, err := getMessageIndex(database, phone, msg, in, date[i], serial)
+
+			if err != nil {
+				errors_count += 1
+			}
+
+			if len(indexes) > 0 {
+				continue
+			}
+
 			records := `INSERT INTO messages (phone, message, inbox, date, serial) VALUES (?, ?, ?, ?, ?)`
 			query, err := db.Prepare(records)
 			if err != nil {
@@ -449,12 +461,87 @@ func addMessages(db *sql.DB, messages []Messages, serial string) (bool, string) 
 	return false, "error"
 }
 
-func deleteMessages(db *sql.DB, contacts [][]string, serial string) (bool, string) {
-	return false, ""
+func deleteMessages(db *sql.DB, messages []Messages, serial string) (bool, string) {
+	errors_count := 0
+
+	for _, message := range messages {
+		phone := message.Phone
+		msgs := message.Messages
+		inbox := message.Inbox
+		date := message.Date
+
+		for i, msg := range msgs {
+			in := "0"
+			if inbox[i] {
+				in = "1"
+			}
+
+			indexes, err := getMessageIndex(database, phone, msg, in, date[i], serial)
+
+			if err != nil {
+				continue
+			}
+
+			if len(indexes) == 0 {
+				continue
+			}
+
+			for _, index := range indexes {
+				records := `DELETE FROM messages WHERE id = ?;`
+				query, err := db.Prepare(records)
+				if err != nil {
+					errors_count += 1
+					continue
+				}
+
+				_, err = query.Exec(fmt.Sprintf("%d", index))
+				if err != nil {
+					errors_count += 1
+				}
+			}
+		}
+	}
+
+	if errors_count == 0 {
+		return true, "success"
+	}
+
+	return false, "error"
 }
 
-func getMessageIndex(db *sql.DB, name string, phones string, serial string) (int, error) {
-	return -1, nil
+func getMessageIndex(db *sql.DB, phone string, msg string, inbox string, date string, serial string) ([]int, error) {
+	query := fmt.Sprintf(
+		`SELECT * FROM messages where phone="%s" AND message="%s" AND inbox="%s" AND date="%s" AND serial="%d"`,
+		phone,
+		msg,
+		inbox,
+		date,
+		getDeviceIndex(database, serial),
+	)
+
+	record, err := db.Query(query)
+	if err != nil {
+		return []int{}, err
+	}
+	defer record.Close()
+
+	var indexes []int
+
+	for record.Next() {
+		var id int
+		var phone string
+		var message string
+		var serial string
+		var inbox string
+		var date string
+
+		record.Scan(&id, &phone, &message, &inbox, &date, &serial)
+
+		indexes = append(indexes, id)
+		// return id, nil
+	}
+
+	return indexes, nil
 }
 
 func listDBmessages(db *sql.DB, serial string) [][]string {
